@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "Input.h"
+#include "BufferStructs.h"
 
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
@@ -46,6 +47,11 @@ Game::~Game()
 	// - If we weren't using smart pointers, we'd need
 	//   to call Release() on each DirectX object created in Game
 
+	//deleting pointers in entityList
+	for (Entity* entity : entityList)
+	{
+		delete entity;
+	}
 }
 
 // --------------------------------------------------------
@@ -64,6 +70,19 @@ void Game::Init()
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//getting byte width of buffer
+	unsigned int size = sizeof(VertexShaderExternalData);
+	size = (size + 15) / 16 * 16;
+
+	//Describe the constant buffer
+	D3D11_BUFFER_DESC cbDesc	= {}; //sets struct to all zeros
+	cbDesc.BindFlags			= D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.ByteWidth			= size; //must be multiple of 16
+	cbDesc.CPUAccessFlags		= D3D10_CPU_ACCESS_WRITE;
+	cbDesc.Usage				= D3D11_USAGE_DYNAMIC;
+
+	device->CreateBuffer(&cbDesc, 0, constantBufferVS.GetAddressOf());
 }
 
 // --------------------------------------------------------
@@ -176,7 +195,7 @@ void Game::CreateBasicGeometry()
 	// - But just to see how it's done...
 	unsigned int indices0[] = { 0, 1, 2 };
 
-	mesh0 = new Mesh(vertices0, 3, indices0, 3, device, context);
+	mesh0 = std::make_shared<Mesh>(vertices0, 3, indices0, 3, device, context);
 
 	Vertex vertices1[] =
 	{
@@ -188,7 +207,7 @@ void Game::CreateBasicGeometry()
 
 	unsigned int indices1[] = { 0, 1, 2, 0, 2, 3 };
 
-	mesh1 = new Mesh(vertices1, 4, indices1, 6, device, context);
+	mesh1 = std::make_shared<Mesh>(vertices1, 4, indices1, 6, device, context);
 
 	Vertex vertices2[] =
 	{													//PENTAGON
@@ -201,9 +220,15 @@ void Game::CreateBasicGeometry()
 
 	unsigned int indices2[] = { 0, 3, 1, 0, 4, 3, 0, 2, 4 };
 
-	mesh2 = new Mesh(vertices2, 5, indices2, 9, device, context);
+	mesh2 = std::make_shared<Mesh>(vertices2, 5, indices2, 9, device, context);
 
-	//ask about shared_ptr, mesh warnings, and input warnings
+
+	
+	entityList.push_back(new Entity(mesh0));
+	entityList.push_back(new Entity(mesh0));
+	entityList.push_back(new Entity(mesh0));
+	entityList.push_back(new Entity(mesh1));
+	entityList.push_back(new Entity(mesh2));
 }
 
 
@@ -222,9 +247,16 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	//making entities move
+	for (int i = 0; i < entityList.size(); i++)
+	{
+		entityList[i]->GetTransform()->Rotate(0, 0, 10 * deltaTime);
+	}
+
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
+
 }
 
 // --------------------------------------------------------
@@ -261,10 +293,33 @@ void Game::Draw(float deltaTime, float totalTime)
 	// - However, this isn't always the case (but might be for this course)
 	context->IASetInputLayout(inputLayout.Get());
 
+	//creating buffer struct
+	VertexShaderExternalData vsData;
+	vsData.colorTint	= XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+	vsData.world = XMFLOAT4X4(); //idk what to put here
+
+	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+	context->Map(constantBufferVS.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+
+	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
+
+	context->Unmap(constantBufferVS.Get(), 0);
+
+	context->VSSetConstantBuffers(
+		0,		//which slot (register) to bind the buffer to?
+		1,		//How many are we activating? Can do multiple at once
+		constantBufferVS.GetAddressOf());	// Array of buffers (or the address of one)
+
 	//drawing meshes
-	mesh0->Draw();
-	mesh1->Draw();
-	mesh2->Draw();
+	//mesh0->Draw();
+	//mesh1->Draw();
+	//mesh2->Draw();
+
+	//draw entities
+	for (int i = 0; i < entityList.size(); i++)
+	{
+		entityList[i]->Draw(context, constantBufferVS);
+	}
 
 
 	// Present the back buffer to the user
