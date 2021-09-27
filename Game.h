@@ -6,6 +6,8 @@
 #include "Mesh.h"
 #include "Entity.h"
 #include <vector>
+#include "Camera.h"
+#include "Material.h"
 
 class Game 
 	: public DXCore
@@ -52,5 +54,11 @@ private:
 
 	//for holding entities
 	std::vector<Entity*> entityList;
+
+	Camera* camera;
+
+	Material* materialRed;
+	Material* materialBlue;
+	Material* materialGreen;
 };
 

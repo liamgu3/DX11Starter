@@ -26,6 +26,7 @@ Game::Game(HINSTANCE hInstance)
 		720,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
+	
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -33,6 +34,7 @@ Game::Game(HINSTANCE hInstance)
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
 
+	camera = 0;
 }
 
 // --------------------------------------------------------
@@ -52,6 +54,13 @@ Game::~Game()
 	{
 		delete entity;
 	}
+
+	delete camera;
+
+	//deleting materials
+	delete materialRed;
+	delete materialGreen;
+	delete materialBlue;
 }
 
 // --------------------------------------------------------
@@ -83,6 +92,13 @@ void Game::Init()
 	cbDesc.Usage				= D3D11_USAGE_DYNAMIC;
 
 	device->CreateBuffer(&cbDesc, 0, constantBufferVS.GetAddressOf());
+
+	//creating camera
+	camera = new Camera(0, 0, -5, (float)width / height, 4.0f, 2.0f, XM_PIDIV2);
+
+	materialRed = new Material(XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f), pixelShader, vertexShader);
+	materialGreen = new Material(XMFLOAT4(0.0f, 0.5f, 0.0f, 0.0f), pixelShader, vertexShader);
+	materialBlue = new Material(XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f), pixelShader, vertexShader);
 }
 
 // --------------------------------------------------------
@@ -222,13 +238,11 @@ void Game::CreateBasicGeometry()
 
 	mesh2 = std::make_shared<Mesh>(vertices2, 5, indices2, 9, device, context);
 
-
-	
-	entityList.push_back(new Entity(mesh0));
-	entityList.push_back(new Entity(mesh0));
-	entityList.push_back(new Entity(mesh0));
-	entityList.push_back(new Entity(mesh1));
-	entityList.push_back(new Entity(mesh2));
+	entityList.push_back(new Entity(mesh0, materialRed));
+	entityList.push_back(new Entity(mesh0, materialRed));
+	entityList.push_back(new Entity(mesh0, materialRed));
+	entityList.push_back(new Entity(mesh1, materialRed));
+	entityList.push_back(new Entity(mesh2, materialRed));
 }
 
 
@@ -240,6 +254,10 @@ void Game::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
+
+	//updating projection matrix on window resize
+	if (camera)
+		camera->UpdateProjectionMatrix((float)width / height);
 }
 
 // --------------------------------------------------------
@@ -252,6 +270,8 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		entityList[i]->GetTransform()->Rotate(0, 0, 10 * deltaTime);
 	}
+
+	camera->Update(deltaTime);
 
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
@@ -310,15 +330,11 @@ void Game::Draw(float deltaTime, float totalTime)
 		1,		//How many are we activating? Can do multiple at once
 		constantBufferVS.GetAddressOf());	// Array of buffers (or the address of one)
 
-	//drawing meshes
-	//mesh0->Draw();
-	//mesh1->Draw();
-	//mesh2->Draw();
-
 	//draw entities
 	for (int i = 0; i < entityList.size(); i++)
 	{
-		entityList[i]->Draw(context, constantBufferVS);
+
+		entityList[i]->Draw(context, constantBufferVS, camera);
 	}
 
 

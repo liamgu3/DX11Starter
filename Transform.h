@@ -20,11 +20,15 @@ public:
 	DirectX::XMFLOAT3 GetScale();
 	DirectX::XMFLOAT4X4 GetWorldMatrix();
 	DirectX::XMFLOAT4X4 GetWorldInverseTransposeMatrix();
+	DirectX::XMFLOAT3 GetRight();
+	DirectX::XMFLOAT3 GetUp();
+	DirectX::XMFLOAT3 GetForward();
 
 	//transformers
 	void MoveAbsolute(float x, float y, float z);
 	void Rotate(float pitch, float yaw, float roll);
 	void Scale(float x, float y, float z);
+	void MoveRelative(float x, float y, float z);
 	
 private:
 	DirectX::XMFLOAT3 position;

@@ -3,10 +3,11 @@
 #include "Mesh.h"
 using namespace DirectX;
 
-Entity::Entity(std::shared_ptr<Mesh> mesh)
+Entity::Entity(std::shared_ptr<Mesh> mesh, Material* _material)
 {
 	meshPtr = mesh;
 	transform = Transform();
+	material = _material;
 }
 
 Entity::~Entity()
@@ -23,7 +24,14 @@ std::shared_ptr<Mesh> Entity::GetMesh()
 	return meshPtr;
 }
 
-void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS)
+Material* Entity::GetMaterial()
+{
+	return material;
+}
+
+
+
+void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS, Camera* camera)
 {
 	//Step 1 - Set Constant Buffer
 	context->VSSetConstantBuffers(
@@ -35,6 +43,8 @@ void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft
 	VertexShaderExternalData vsData;
 	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
 	vsData.world = transform.GetWorldMatrix();
+	vsData.viewMatrix = camera->GetView();
+	vsData.projectionMatrix = camera->GetProjection();
 
 	//step 3 - map, memcpy, unmap constant buffer
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
@@ -42,9 +52,14 @@ void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft
 	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
 	context->Unmap(constantBufferVS.Get(), 0);
 
+	//activating vertex and pixelShader
+	context->VSSetShader(material->GetVertexShader().Get(), 0, 0);
+	context->PSSetShader(material->GetPixelShader().Get(), 0, 0);
+
 	//step 4+5 - set buffers and render with currently bound resources
 	meshPtr->Draw();
 
+	//I think I can delete this
 	////step 4 - set the correct vertex and index buffers
 	//UINT stride = sizeof(Vertex);
 	//UINT offset = 0;

@@ -63,6 +63,33 @@ DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 	return worldInverseTransposeMatrix;
 }
 
+DirectX::XMFLOAT3 Transform::GetRight()
+{
+	XMFLOAT3 right;
+	XMVECTOR localRight = XMVector3Rotate(XMVectorSet(1, 0, 0, 0), XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll)));
+	XMStoreFloat3(&right, localRight);
+
+	return right;
+}
+
+DirectX::XMFLOAT3 Transform::GetUp()
+{
+	XMFLOAT3 up;
+	XMVECTOR localUp = XMVector3Rotate(XMVectorSet(0, 1, 0, 0), XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll)));
+	XMStoreFloat3(&up, localUp);
+
+	return up;
+}
+
+DirectX::XMFLOAT3 Transform::GetForward()
+{
+	XMFLOAT3 forward;
+	XMVECTOR localForward = XMVector3Rotate(XMVectorSet(0, 0, 1, 0), XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll)));
+	XMStoreFloat3(&forward, localForward);
+
+	return forward;
+}
+
 //translate object in world space
 void Transform::MoveAbsolute(float x, float y, float z)
 {
@@ -85,6 +112,13 @@ void Transform::Scale(float x, float y, float z)
 	scale.x *= x;
 	scale.y *= y;
 	scale.z *= z;
+	matricesDirty = true;
+}
+
+void Transform::MoveRelative(float x, float y, float z)
+{
+	XMVECTOR rotatedVector = XMVector3Rotate(XMVectorSet(x, y, z, 0), XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll)));
+	XMStoreFloat3(&position, XMLoadFloat3(&position) + rotatedVector);
 	matricesDirty = true;
 }
 
