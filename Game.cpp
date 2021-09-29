@@ -73,6 +73,12 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
+
+
+	materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), pixelShader, vertexShader);
+	materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), pixelShader, vertexShader);
+	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), pixelShader, vertexShader);
+
 	CreateBasicGeometry();
 	
 	// Tell the input assembler stage of the pipeline what kind of
@@ -95,10 +101,6 @@ void Game::Init()
 
 	//creating camera
 	camera = new Camera(0, 0, -5, (float)width / height, 4.0f, 2.0f, XM_PIDIV2);
-
-	materialRed = new Material(XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f), pixelShader, vertexShader);
-	materialGreen = new Material(XMFLOAT4(0.0f, 0.5f, 0.0f, 0.0f), pixelShader, vertexShader);
-	materialBlue = new Material(XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f), pixelShader, vertexShader);
 }
 
 // --------------------------------------------------------
@@ -239,10 +241,14 @@ void Game::CreateBasicGeometry()
 	mesh2 = std::make_shared<Mesh>(vertices2, 5, indices2, 9, device, context);
 
 	entityList.push_back(new Entity(mesh0, materialRed));
-	entityList.push_back(new Entity(mesh0, materialRed));
-	entityList.push_back(new Entity(mesh0, materialRed));
-	entityList.push_back(new Entity(mesh1, materialRed));
-	entityList.push_back(new Entity(mesh2, materialRed));
+	entityList.push_back(new Entity(mesh0, materialGreen));
+	entityList.push_back(new Entity(mesh0, materialBlue));
+	entityList.push_back(new Entity(mesh1, materialGreen));
+	entityList.push_back(new Entity(mesh2, materialBlue));
+	
+	//temporary just to make all entities visible
+	entityList[1]->GetTransform()->MoveAbsolute(0.0f, -1.0f, 0.0f);
+	entityList[2]->GetTransform()->MoveAbsolute(0.0f, 1.0f, 0.0f);
 }
 
 
@@ -268,7 +274,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//making entities move
 	for (int i = 0; i < entityList.size(); i++)
 	{
-		entityList[i]->GetTransform()->Rotate(0, 0, 10 * deltaTime);
+		entityList[i]->GetTransform()->Rotate(0, 0, 2 * deltaTime);
 	}
 
 	camera->Update(deltaTime);

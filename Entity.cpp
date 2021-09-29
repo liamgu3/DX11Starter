@@ -41,7 +41,7 @@ void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft
 
 	//Step 2 - Put data into buffer struct
 	VertexShaderExternalData vsData;
-	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+	vsData.colorTint = material->GetColor();
 	vsData.world = transform.GetWorldMatrix();
 	vsData.viewMatrix = camera->GetView();
 	vsData.projectionMatrix = camera->GetProjection();
