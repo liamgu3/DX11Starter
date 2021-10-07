@@ -19,6 +19,9 @@ public:
 		Microsoft::WRL::ComPtr<ID3D11Device> device, 
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> context
 	);
+
+	Mesh(const char* objFile, Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+
 	~Mesh();
 
 	ID3D11Buffer* GetVertexBuffer();

@@ -1,6 +1,6 @@
 #include "Material.h"
 
-Material::Material(DirectX::XMFLOAT4 _colorTint, Microsoft::WRL::ComPtr<ID3D11PixelShader> _pixelShader, Microsoft::WRL::ComPtr<ID3D11VertexShader> _vertexShader)
+Material::Material(DirectX::XMFLOAT4 _colorTint, std::shared_ptr<SimplePixelShader> _pixelShader, std::shared_ptr<SimpleVertexShader> _vertexShader)
 {
 	colorTint = _colorTint;
 	pixelShader = _pixelShader;
@@ -16,12 +16,12 @@ DirectX::XMFLOAT4 Material::GetColor()
 	return colorTint;
 }
 
-Microsoft::WRL::ComPtr<ID3D11PixelShader> Material::GetPixelShader()
+std::shared_ptr<SimplePixelShader> Material::GetPixelShader()
 {
 	return pixelShader;
 }
 
-Microsoft::WRL::ComPtr<ID3D11VertexShader> Material::GetVertexShader()
+std::shared_ptr<SimpleVertexShader> Material::GetVertexShader()
 {
 	return vertexShader;
 }
@@ -31,12 +31,12 @@ void Material::SetColor(DirectX::XMFLOAT4 _colorTint)
 	colorTint = _colorTint;
 }
 
-void Material::SetPixelShader(Microsoft::WRL::ComPtr<ID3D11PixelShader> _pixelShader)
+void Material::SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader)
 {
 	pixelShader = _pixelShader;
 }
 
-void Material::SetVertexShader(Microsoft::WRL::ComPtr<ID3D11VertexShader> _vertexShader)
+void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader)
 {
 	vertexShader = _vertexShader;
 }

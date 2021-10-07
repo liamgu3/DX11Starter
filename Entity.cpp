@@ -31,41 +31,26 @@ Material* Entity::GetMaterial()
 
 
 
-void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS, Camera* camera)
+void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Camera* camera)
 {
-	//Step 1 - Set Constant Buffer
-	context->VSSetConstantBuffers(
-		0,		//which slot (register) to bind the buffer to?
-		1,		//How many are we activating? Can do multiple at once
-		constantBufferVS.GetAddressOf());	// Array of buffers (or the address of one)
-
 	//Step 2 - Put data into buffer struct
-	VertexShaderExternalData vsData;
-	vsData.colorTint = material->GetColor();
-	vsData.world = transform.GetWorldMatrix();
-	vsData.viewMatrix = camera->GetView();
-	vsData.projectionMatrix = camera->GetProjection();
+	std::shared_ptr<SimpleVertexShader> vs = material->GetVertexShader();	//simplifies the next few lines
+	vs->SetMatrix4x4("world", transform.GetWorldMatrix());
+	vs->SetMatrix4x4("view", camera->GetView());
+	vs->SetMatrix4x4("projection", camera->GetProjection());
+
+	std::shared_ptr<SimplePixelShader> ps = material->GetPixelShader();
+	ps->SetFloat4("colorTint", material->GetColor());
+
 
 	//step 3 - map, memcpy, unmap constant buffer
-	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	context->Map(constantBufferVS.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-	context->Unmap(constantBufferVS.Get(), 0);
+	vs->CopyAllBufferData();
+	ps->CopyAllBufferData();
 
 	//activating vertex and pixelShader
-	context->VSSetShader(material->GetVertexShader().Get(), 0, 0);
-	context->PSSetShader(material->GetPixelShader().Get(), 0, 0);
+	material->GetVertexShader()->SetShader();
+	material->GetPixelShader()->SetShader();
 
 	//step 4+5 - set buffers and render with currently bound resources
 	meshPtr->Draw();
-
-	//I think I can delete this
-	////step 4 - set the correct vertex and index buffers
-	//UINT stride = sizeof(Vertex);
-	//UINT offset = 0;
-	//context->IASetVertexBuffers(0, 1, meshPtr->GetVertexBuffer().GetAddressOf(), &stride, &offset);
-	//context->IASetIndexBuffer(meshPtr->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
-	//
-	////step 5 tell Direct3D to render with currently bound resources
-	//context->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthStencilView.Get());
 }
