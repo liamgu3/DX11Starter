@@ -31,16 +31,20 @@ Material* Entity::GetMaterial()
 
 
 
-void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Camera* camera)
+void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Camera* camera, XMFLOAT3 ambient)
 {
 	//Step 2 - Put data into buffer struct
 	std::shared_ptr<SimpleVertexShader> vs = material->GetVertexShader();	//simplifies the next few lines
 	vs->SetMatrix4x4("world", transform.GetWorldMatrix());
 	vs->SetMatrix4x4("view", camera->GetView());
 	vs->SetMatrix4x4("projection", camera->GetProjection());
+	vs->SetMatrix4x4("worldInvTranspose", transform.GetWorldInverseTransposeMatrix());
 
 	std::shared_ptr<SimplePixelShader> ps = material->GetPixelShader();
 	ps->SetFloat4("colorTint", material->GetColor());
+	ps->SetFloat("roughness", material->GetRoughness());
+	ps->SetFloat3("cameraPos", camera->GetTransform()->GetPosition());
+	ps->SetFloat3("ambient", ambient);
 
 
 	//step 3 - map, memcpy, unmap constant buffer

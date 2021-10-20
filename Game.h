@@ -8,6 +8,7 @@
 #include <vector>
 #include "Camera.h"
 #include "Material.h"
+#include "Lights.h"
 
 class Game 
 	: public DXCore
@@ -54,10 +55,19 @@ private:
 	//for holding entities
 	std::vector<Entity*> entityList;
 
+	//Camera
 	Camera* camera;
 
+	//materials
 	Material* materialRed;
 	Material* materialBlue;
 	Material* materialGreen;
+	Material* materialWhite;
+
+	//Lights
+	DirectX::XMFLOAT3 ambient;
+	Light directionalLight1;
+	Light directionalLight2;
+	Light directionalLight3;
 };
 

@@ -62,6 +62,7 @@ Game::~Game()
 	delete materialRed;
 	delete materialGreen;
 	delete materialBlue;
+	delete materialWhite;
 }
 
 // --------------------------------------------------------
@@ -74,11 +75,6 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
-
-
-	materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), pixelShader, vertexShader);
-	materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), pixelShader, vertexShader);
-	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), pixelShader, vertexShader);
 
 	CreateBasicGeometry();
 	
@@ -93,6 +89,25 @@ void Game::Init()
 
 	//creating camera
 	camera = new Camera(0, 0, -5, (float)width / height, 4.0f, 2.0f, XM_PIDIV2);
+
+	//creating a light
+	directionalLight1 = {};
+	directionalLight1.type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);
+	directionalLight1.color = XMFLOAT3(1.0, 0.2, 0.2);
+	directionalLight1.intensity = 1.0;
+
+	directionalLight2 = {};
+	directionalLight2.type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight2.direction = XMFLOAT3(-1.0, 0.0, 0.0);
+	directionalLight2.color = XMFLOAT3(0.2, 0.2, 1.0);
+	directionalLight2.intensity = 1.0;
+
+	directionalLight3 = {};
+	directionalLight3.type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight3.direction = XMFLOAT3(0.0, -1.0, 0.0);
+	directionalLight3.color = XMFLOAT3(0.2, 1.0, 0.2);
+	directionalLight3.intensity = 1.0;
 }
 
 // --------------------------------------------------------
@@ -106,8 +121,8 @@ void Game::Init()
 void Game::LoadShaders()
 {
 	vertexShader = std::shared_ptr<SimpleVertexShader>(new SimpleVertexShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"VertexShader.cso").c_str()));
-	//pixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"PixelShader.cso").c_str()));
-	pixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"CustomPS.cso").c_str()));
+	pixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"PixelShader.cso").c_str()));
+	//pixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"CustomPS.cso").c_str()));
 }
 
 
@@ -135,12 +150,12 @@ void Game::CreateBasicGeometry()
 	//    knowing the exact size (in pixels) of the image/window/etc.  
 	// - Long story short: Resizing the window also resizes the triangle,
 	//    since we're describing the triangle in terms of the window itself
-	Vertex vertices0[] =
-	{
-		{ XMFLOAT3(+0.0f, +0.25f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-		{ XMFLOAT3(+0.25f, -0.25f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-		{ XMFLOAT3(-0.25f, -0.25f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-	};
+	//Vertex vertices0[] =
+	//{
+	//	{ XMFLOAT3(+0.0f, +0.25f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//	{ XMFLOAT3(+0.25f, -0.25f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//	{ XMFLOAT3(-0.25f, -0.25f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//};
 
 	// Set up the indices, which tell us which vertices to use and in which order
 	// - This is somewhat redundant for just 3 vertices (it's a simple example)
@@ -152,32 +167,37 @@ void Game::CreateBasicGeometry()
 	//mesh0 = std::make_shared<Mesh>(vertices0, 3, indices0, 3, device, context);
 	mesh0 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/cube.obj").c_str(), device, context);
 
-	Vertex vertices1[] =
-	{
-		{ XMFLOAT3(-0.75f, -0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-		{ XMFLOAT3(-0.5f, -0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-		{ XMFLOAT3(-0.5f, -0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-		{ XMFLOAT3(-0.75f, -0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
-	};
+	//Vertex vertices1[] =
+	//{
+	//	{ XMFLOAT3(-0.75f, -0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//	{ XMFLOAT3(-0.5f, -0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//	{ XMFLOAT3(-0.5f, -0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//	{ XMFLOAT3(-0.75f, -0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },
+	//};
 
 	unsigned int indices1[] = { 0, 1, 2, 0, 2, 3 };
 
 	//mesh1 = std::make_shared<Mesh>(vertices1, 4, indices1, 6, device, context);
 	mesh1 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/sphere.obj").c_str(), device, context);
 
-	Vertex vertices2[] =
-	{													//PENTAGON
-		{ XMFLOAT3(+0.5f, +0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },	//bottom left
-		{ XMFLOAT3(+0.75f, +0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },		//bottom right
-		{ XMFLOAT3(+0.25f, +0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },		//left
-		{ XMFLOAT3(+1.0f, +0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },		//right
-		{ XMFLOAT3(+0.625f, +1.0f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },	//top
-	};
+	//Vertex vertices2[] =
+	//{													//PENTAGON
+	//	{ XMFLOAT3(+0.5f, +0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },	//bottom left
+	//	{ XMFLOAT3(+0.75f, +0.5f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },		//bottom right
+	//	{ XMFLOAT3(+0.25f, +0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },		//left
+	//	{ XMFLOAT3(+1.0f, +0.75f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },		//right
+	//	{ XMFLOAT3(+0.625f, +1.0f, +0.0f), XMFLOAT3(+0.0f, +0.0f, -1.0f), XMFLOAT2(+0.0f, +0.0f) },	//top
+	//};
 
 	unsigned int indices2[] = { 0, 3, 1, 0, 4, 3, 0, 2, 4 };
 
 	//mesh2 = std::make_shared<Mesh>(vertices2, 5, indices2, 9, device, context);
 	mesh2 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/helix.obj").c_str(), device, context);
+
+	materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), 0.5, pixelShader, vertexShader);
+	materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), 0.5, pixelShader, vertexShader);
+	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), 0.5, pixelShader, vertexShader);
+	materialWhite = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0, pixelShader, vertexShader);
 
 	entityList.push_back(new Entity(mesh0, materialRed));
 	entityList.push_back(new Entity(mesh0, materialGreen));
@@ -191,7 +211,7 @@ void Game::CreateBasicGeometry()
 	entityList[3]->GetTransform()->MoveAbsolute(-4.0f, 0.0f, 0.0f);
 	entityList[4]->GetTransform()->MoveAbsolute(4.0f, 0.0f, 0.0f);
 
-
+	ambient = XMFLOAT3(0.25f, 0.25f, 0.25f);
 }
 
 
@@ -270,8 +290,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	//draw entities
 	for (int i = 0; i < entityList.size(); i++)
 	{
-
-		entityList[i]->Draw(context, camera);
+		entityList[i]->Draw(context, camera, ambient);
+		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight1", &directionalLight1, sizeof(directionalLight1));
+		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight2", &directionalLight2, sizeof(directionalLight2));
+		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight3", &directionalLight3, sizeof(directionalLight3));
 	}
 
 
