@@ -69,5 +69,7 @@ private:
 	Light directionalLight1;
 	Light directionalLight2;
 	Light directionalLight3;
+	Light pointLight1;
+	Light pointLight2;
 };
 

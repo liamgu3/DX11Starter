@@ -90,24 +90,38 @@ void Game::Init()
 	//creating camera
 	camera = new Camera(0, 0, -5, (float)width / height, 4.0f, 2.0f, XM_PIDIV2);
 
-	//creating a light
+	//initializing lights
 	directionalLight1 = {};
 	directionalLight1.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);
 	directionalLight1.color = XMFLOAT3(1.0, 0.2, 0.2);
-	directionalLight1.intensity = 1.0;
+	directionalLight1.intensity = 2.0;
 
 	directionalLight2 = {};
 	directionalLight2.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.direction = XMFLOAT3(-1.0, 0.0, 0.0);
 	directionalLight2.color = XMFLOAT3(0.2, 0.2, 1.0);
-	directionalLight2.intensity = 1.0;
+	directionalLight2.intensity = 2.0;
 
 	directionalLight3 = {};
 	directionalLight3.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight3.direction = XMFLOAT3(0.0, -1.0, 0.0);
 	directionalLight3.color = XMFLOAT3(0.2, 1.0, 0.2);
-	directionalLight3.intensity = 1.0;
+	directionalLight3.intensity = 2.0;
+
+	pointLight1 = {};
+	pointLight1.type = LIGHT_TYPE_POINT;
+	pointLight1.color = XMFLOAT3(1.0, 1.0, 1.0);
+	pointLight1.intensity = 10.0;
+	pointLight1.position = XMFLOAT3(-2.0, 0.0, 0.0);
+	pointLight1.range = 4.0;
+
+	pointLight2 = {};
+	pointLight2.type = LIGHT_TYPE_POINT;
+	pointLight2.color = XMFLOAT3(1.0, 1.0, 1.0);
+	pointLight2.intensity = 10.0;
+	pointLight2.position = XMFLOAT3(0.0, 2.0, 0.0);
+	pointLight2.range = 4.0;
 }
 
 // --------------------------------------------------------
@@ -199,11 +213,11 @@ void Game::CreateBasicGeometry()
 	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), 0.5, pixelShader, vertexShader);
 	materialWhite = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0, pixelShader, vertexShader);
 
-	entityList.push_back(new Entity(mesh0, materialRed));
-	entityList.push_back(new Entity(mesh0, materialGreen));
-	entityList.push_back(new Entity(mesh0, materialBlue));
-	entityList.push_back(new Entity(mesh1, materialGreen));
-	entityList.push_back(new Entity(mesh2, materialBlue));
+	entityList.push_back(new Entity(mesh0, materialWhite));
+	entityList.push_back(new Entity(mesh0, materialWhite));
+	entityList.push_back(new Entity(mesh0, materialWhite));
+	entityList.push_back(new Entity(mesh1, materialWhite));
+	entityList.push_back(new Entity(mesh2, materialWhite));
 	
 	//temporary just to make all entities visible
 	entityList[1]->GetTransform()->MoveAbsolute(0.0f, -4.0f, 0.0f);
@@ -294,6 +308,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight1", &directionalLight1, sizeof(directionalLight1));
 		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight2", &directionalLight2, sizeof(directionalLight2));
 		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight3", &directionalLight3, sizeof(directionalLight3));
+		entityList[i]->GetMaterial()->GetPixelShader()->SetData("pointLight1", &pointLight1, sizeof(pointLight1));
+		entityList[i]->GetMaterial()->GetPixelShader()->SetData("pointLight2", &pointLight2, sizeof(pointLight2));
 	}
 
 
