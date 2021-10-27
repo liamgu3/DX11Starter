@@ -45,6 +45,7 @@ void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Camera* c
 	ps->SetFloat("roughness", material->GetRoughness());
 	ps->SetFloat3("cameraPos", camera->GetTransform()->GetPosition());
 	ps->SetFloat3("ambient", ambient);
+	material->PrepareMaterials();
 
 
 	//step 3 - map, memcpy, unmap constant buffer

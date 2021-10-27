@@ -1,5 +1,9 @@
 #include "ShaderInclude.hlsli"
 
+Texture2D SurfaceTexture	: register(t0);	//"t" registers for textures
+Texture2D SurfaceRoughness	: register(t1);
+SamplerState BasicSampler	: register(s0);	//"s" registers for samplers
+
 cbuffer ExternalData : register(b0)
 {
 	float4 colorTint;
@@ -47,12 +51,13 @@ float4 main(VertexToPixel input) : SV_TARGET
 	input.normal = normalize(input.normal);
 
 	//calculating diffuse lighting
-	float3 diffuse1 = Diffuse(input.normal, directionalLight1.direction, directionalLight1.color);	//directionalLight1	
-	float3 diffuse2 = Diffuse(input.normal, directionalLight2.direction, directionalLight2.color);	//directionalLight2
-	float3 diffuse3 = Diffuse(input.normal, directionalLight3.direction, directionalLight3.color);	//directionalLight3
+	float3 diffuse1 = Diffuse(input.normal, directionalLight1.direction, directionalLight1.color) * directionalLight1.intensity;	//directionalLight1	
+	float3 diffuse2 = Diffuse(input.normal, directionalLight2.direction, directionalLight2.color) * directionalLight2.intensity;	//directionalLight2
+	float3 diffuse3 = Diffuse(input.normal, directionalLight3.direction, directionalLight3.color) * directionalLight3.intensity;	//directionalLight3 
 	float3 diffuse4 = Diffuse(input.normal, normalize(input.worldPosition - pointLight1.position), directionalLight2.color) * Attenuate(pointLight1, input.worldPosition);	//pointLight1
 	float3 diffuse5 = Diffuse(input.normal, normalize(input.worldPosition - pointLight2.position), directionalLight3.color) * Attenuate(pointLight2, input.worldPosition);	//pointLight2
 
+	float pixelRoughness = 1.0f - (SurfaceRoughness.Sample(BasicSampler, input.uv).r);
 
 	//calculating specular lighting
 	float specExponent = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
@@ -64,15 +69,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float specular5 = 0.0f;
 	if (specExponent > 0.0f)	//if specExponent is 0 then we make spec =  0, otherwise it would become 1.0 (bright white)
 	{
-		specular1 = Specular(input.normal, directionalLight1.direction, V, specExponent);	//directionalLight1	
-		specular2 = Specular(input.normal, directionalLight2.direction, V, specExponent);	//directionalLight2
-		specular3 = Specular(input.normal, directionalLight3.direction, V, specExponent);	//directionalLight3
-		specular4 = Specular(input.normal, normalize(input.worldPosition - pointLight1.position), V, specExponent) * Attenuate(pointLight1, input.worldPosition);	//pointLight1
-		specular5 = Specular(input.normal, normalize(input.worldPosition - pointLight2.position), V, specExponent) * Attenuate(pointLight2, input.worldPosition);	//pointLight2
+		specular1 = Specular(input.normal, directionalLight1.direction, V, specExponent) * pixelRoughness;	//directionalLight1	
+		specular2 = Specular(input.normal, directionalLight2.direction, V, specExponent) * pixelRoughness;	//directionalLight2
+		specular3 = Specular(input.normal, directionalLight3.direction, V, specExponent) * pixelRoughness;	//directionalLight3
+		specular4 = Specular(input.normal, normalize(input.worldPosition - pointLight1.position), V, specExponent) * Attenuate(pointLight1, input.worldPosition) * pixelRoughness;	//pointLight1
+		specular5 = Specular(input.normal, normalize(input.worldPosition - pointLight2.position), V, specExponent) * Attenuate(pointLight2, input.worldPosition) * pixelRoughness;	//pointLight2
 	}
 
+	float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
 
-	float3 finalPixelColor = specular1 + specular2 + specular3 + specular4 + specular5 + diffuse1 + diffuse2 + diffuse3 + diffuse4 + diffuse5 + (ambient * colorTint);
+
+	float3 finalPixelColor = specular1 + specular2 + specular3 + specular4 + specular5 + diffuse1 + diffuse2 + diffuse3 + diffuse4 + diffuse5 + (ambient * colorTint) + (surfaceColor * colorTint);
 
 	return float4(finalPixelColor, 1);
 	//return float4(directionalLight1.color, 1);		//temporary test

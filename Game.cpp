@@ -62,7 +62,8 @@ Game::~Game()
 	delete materialRed;
 	delete materialGreen;
 	delete materialBlue;
-	delete materialWhite;
+	delete materialWhiteRustyMetal;
+	delete materialWhiteWood;
 }
 
 // --------------------------------------------------------
@@ -93,35 +94,38 @@ void Game::Init()
 	//initializing lights
 	directionalLight1 = {};
 	directionalLight1.type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);
-	directionalLight1.color = XMFLOAT3(1.0, 0.2, 0.2);
-	directionalLight1.intensity = 2.0;
+	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);	//points right
+	directionalLight1.color = XMFLOAT3(1.0f, 0.2f, 0.2f);	//colored light
+	//directionalLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight1.intensity = 0.35f;
 
 	directionalLight2 = {};
 	directionalLight2.type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight2.direction = XMFLOAT3(-1.0, 0.0, 0.0);
-	directionalLight2.color = XMFLOAT3(0.2, 0.2, 1.0);
-	directionalLight2.intensity = 2.0;
+	directionalLight2.direction = XMFLOAT3(-1.0, 0.0, 0.0);	//points left
+	directionalLight2.color = XMFLOAT3(0.2f, 0.2f, 1.0f);	//colored light
+	//directionalLight2.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight2.intensity = 0.35f;
 
 	directionalLight3 = {};
 	directionalLight3.type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight3.direction = XMFLOAT3(0.0, -1.0, 0.0);
-	directionalLight3.color = XMFLOAT3(0.2, 1.0, 0.2);
-	directionalLight3.intensity = 2.0;
+	directionalLight3.direction = XMFLOAT3(0.0, -1.0, 0.0);	//points down
+	directionalLight3.color = XMFLOAT3(0.2f, 1.0f, 0.2f);	//colored light
+	//directionalLight3.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight3.intensity = 0.35f;
 
 	pointLight1 = {};
 	pointLight1.type = LIGHT_TYPE_POINT;
 	pointLight1.color = XMFLOAT3(1.0, 1.0, 1.0);
 	pointLight1.intensity = 10.0;
-	pointLight1.position = XMFLOAT3(-2.0, 0.0, 0.0);
-	pointLight1.range = 4.0;
+	pointLight1.position = XMFLOAT3(-2.5, 0.0, 0.5);
+	pointLight1.range = 1.5f;
 
 	pointLight2 = {};
 	pointLight2.type = LIGHT_TYPE_POINT;
 	pointLight2.color = XMFLOAT3(1.0, 1.0, 1.0);
 	pointLight2.intensity = 10.0;
 	pointLight2.position = XMFLOAT3(0.0, 2.0, 0.0);
-	pointLight2.range = 4.0;
+	pointLight2.range = 1.5f;
 }
 
 // --------------------------------------------------------
@@ -208,16 +212,52 @@ void Game::CreateBasicGeometry()
 	//mesh2 = std::make_shared<Mesh>(vertices2, 5, indices2, 9, device, context);
 	mesh2 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/helix.obj").c_str(), device, context);
 
-	materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), 0.5, pixelShader, vertexShader);
-	materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), 0.5, pixelShader, vertexShader);
-	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), 0.5, pixelShader, vertexShader);
-	materialWhite = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0, pixelShader, vertexShader);
+	//creating textures
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_albedo.tif").c_str(), 0, rustyMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld_albedo.tif").c_str(), 0, woodSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_albedo.tif").c_str(), 0, damagedConcreteSRV.GetAddressOf());
+	
+	//creating roughness textures
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_roughness.tif").c_str(), 0, rustyMetalRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld3_roughness.tif").c_str(), 0, woodRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_roughness.tif").c_str(), 0, damagedConcreteRoughnessSRV.GetAddressOf());
 
-	entityList.push_back(new Entity(mesh0, materialWhite));
-	entityList.push_back(new Entity(mesh0, materialWhite));
-	entityList.push_back(new Entity(mesh0, materialWhite));
-	entityList.push_back(new Entity(mesh1, materialWhite));
-	entityList.push_back(new Entity(mesh2, materialWhite));
+	//creating sampler
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampDesc.MaxAnisotropy = 5;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	device.Get()->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
+
+	//materials
+	materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), 0.8f, pixelShader, vertexShader);
+	materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), 0.8f, pixelShader, vertexShader);
+	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), 0.8f, pixelShader, vertexShader);
+	materialWhiteRustyMetal = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	materialWhiteWood = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	materialWhiteConcrete = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+
+	materialWhiteRustyMetal->AddTextureSRV("SurfaceTexture", rustyMetalSRV);	//metal texture
+	materialWhiteWood->AddTextureSRV("SurfaceTexture", woodSRV);	//wood texture
+	materialWhiteConcrete->AddTextureSRV("SurfaceTexture", damagedConcreteSRV);	//damaged concrete texture
+
+	materialWhiteRustyMetal->AddSampler("BasicSampler", samplerState);	//sampler
+	materialWhiteWood->AddSampler("BasicSampler", samplerState);	//sampler
+	materialWhiteConcrete->AddSampler("BasicSampler", samplerState);	//sampler
+
+	materialWhiteRustyMetal->AddTextureSRV("SurfaceRoughness", rustyMetalRoughnessSRV);	//metal roughness
+	materialWhiteWood->AddTextureSRV("SurfaceRoughness", woodRoughnessSRV);	//wood roughness
+	materialWhiteConcrete->AddTextureSRV("SurfaceRoughness", damagedConcreteRoughnessSRV);	//damaged concrete roughness
+
+	//pushing to entity list
+	entityList.push_back(new Entity(mesh0, materialWhiteRustyMetal));
+	entityList.push_back(new Entity(mesh0, materialWhiteRustyMetal));
+	entityList.push_back(new Entity(mesh0, materialWhiteConcrete));
+	entityList.push_back(new Entity(mesh1, materialWhiteConcrete));
+	entityList.push_back(new Entity(mesh2, materialWhiteRustyMetal));
 	
 	//temporary just to make all entities visible
 	entityList[1]->GetTransform()->MoveAbsolute(0.0f, -4.0f, 0.0f);
@@ -225,7 +265,7 @@ void Game::CreateBasicGeometry()
 	entityList[3]->GetTransform()->MoveAbsolute(-4.0f, 0.0f, 0.0f);
 	entityList[4]->GetTransform()->MoveAbsolute(4.0f, 0.0f, 0.0f);
 
-	ambient = XMFLOAT3(0.25f, 0.25f, 0.25f);
+	ambient = XMFLOAT3(0.1f, 0.1f, 0.1f);
 }
 
 
@@ -251,7 +291,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//making entities move
 	for (int i = 0; i < entityList.size(); i++)
 	{
-		entityList[i]->GetTransform()->Rotate(0, 0, 2 * deltaTime);
+		entityList[i]->GetTransform()->Rotate(0, 0, .1 * deltaTime);
 	}
 
 	camera->Update(deltaTime);

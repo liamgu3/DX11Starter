@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Material.h"
 #include "Lights.h"
+#include "WICTextureLoader.h"
 
 class Game 
 	: public DXCore
@@ -62,7 +63,9 @@ private:
 	Material* materialRed;
 	Material* materialBlue;
 	Material* materialGreen;
-	Material* materialWhite;
+	Material* materialWhiteRustyMetal;
+	Material* materialWhiteWood;
+	Material* materialWhiteConcrete;
 
 	//Lights
 	DirectX::XMFLOAT3 ambient;
@@ -71,5 +74,14 @@ private:
 	Light directionalLight3;
 	Light pointLight1;
 	Light pointLight2;
+
+	//texture
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 };
 
