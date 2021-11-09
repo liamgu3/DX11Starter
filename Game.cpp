@@ -64,6 +64,10 @@ Game::~Game()
 	delete materialBlue;
 	delete materialWhiteRustyMetal;
 	delete materialWhiteWood;
+	delete materialWhiteConcrete;
+	delete materialWhiteSciFiFabric;
+
+	delete skybox;
 }
 
 // --------------------------------------------------------
@@ -97,35 +101,35 @@ void Game::Init()
 	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);	//points right
 	directionalLight1.color = XMFLOAT3(1.0f, 0.2f, 0.2f);	//colored light
 	//directionalLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
-	directionalLight1.intensity = 0.35f;
+	directionalLight1.intensity = 0.5f;
 
 	directionalLight2 = {};
 	directionalLight2.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.direction = XMFLOAT3(-1.0, 0.0, 0.0);	//points left
 	directionalLight2.color = XMFLOAT3(0.2f, 0.2f, 1.0f);	//colored light
 	//directionalLight2.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
-	directionalLight2.intensity = 0.35f;
+	directionalLight2.intensity = 0.5f;
 
 	directionalLight3 = {};
 	directionalLight3.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight3.direction = XMFLOAT3(0.0, -1.0, 0.0);	//points down
 	directionalLight3.color = XMFLOAT3(0.2f, 1.0f, 0.2f);	//colored light
 	//directionalLight3.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
-	directionalLight3.intensity = 0.35f;
+	directionalLight3.intensity = 0.5f;
 
 	pointLight1 = {};
 	pointLight1.type = LIGHT_TYPE_POINT;
 	pointLight1.color = XMFLOAT3(1.0, 1.0, 1.0);
-	pointLight1.intensity = 10.0;
-	pointLight1.position = XMFLOAT3(-2.5, 0.0, 0.5);
-	pointLight1.range = 1.5f;
+	pointLight1.intensity = 0.5f;
+	pointLight1.position = XMFLOAT3(-2.0, 0.0, -1.0);
+	pointLight1.range = 3.0f;
 
 	pointLight2 = {};
 	pointLight2.type = LIGHT_TYPE_POINT;
 	pointLight2.color = XMFLOAT3(1.0, 1.0, 1.0);
-	pointLight2.intensity = 10.0;
-	pointLight2.position = XMFLOAT3(0.0, 2.0, 0.0);
-	pointLight2.range = 1.5f;
+	pointLight2.intensity = 0.5f;
+	pointLight2.position = XMFLOAT3(2.0, 2.0, 0.0);
+	pointLight2.range = 3.0f;
 }
 
 // --------------------------------------------------------
@@ -141,6 +145,10 @@ void Game::LoadShaders()
 	vertexShader = std::shared_ptr<SimpleVertexShader>(new SimpleVertexShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"VertexShader.cso").c_str()));
 	pixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"PixelShader.cso").c_str()));
 	//pixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"CustomPS.cso").c_str()));
+
+	//sky shaders
+	skyVertexShader = std::shared_ptr<SimpleVertexShader>(new SimpleVertexShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"SkyVertexShader.cso").c_str()));
+	skyPixelShader = std::shared_ptr<SimplePixelShader>(new SimplePixelShader(device.Get(), context.Get(), GetFullPathTo_Wide(L"SkyPixelShader.cso").c_str()));
 }
 
 
@@ -212,15 +220,24 @@ void Game::CreateBasicGeometry()
 	//mesh2 = std::make_shared<Mesh>(vertices2, 5, indices2, 9, device, context);
 	mesh2 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/helix.obj").c_str(), device, context);
 
+	mesh3 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/cylinder.obj").c_str(), device, context);
+
 	//creating textures
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_albedo.tif").c_str(), 0, rustyMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld_albedo.tif").c_str(), 0, woodSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_albedo.tif").c_str(), 0, damagedConcreteSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Scifi_Pattern_albedo.tif").c_str(), 0, sciFiFabricSRV.GetAddressOf());
 	
 	//creating roughness textures
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_roughness.tif").c_str(), 0, rustyMetalRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld3_roughness.tif").c_str(), 0, woodRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_roughness.tif").c_str(), 0, damagedConcreteRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Scifi_Pattern_roughness.tif").c_str(), 0, sciFiFabricRoughnessSRV.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_normal.tif").c_str(), 0, rustyMetalNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld_normal.tif").c_str(), 0, woodNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_normal.tif").c_str(), 0, damagedConcreteNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Scifi_Pattern_normal.tif").c_str(), 0, sciFiFabricNormalSRV.GetAddressOf());
 
 	//creating sampler
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -239,25 +256,38 @@ void Game::CreateBasicGeometry()
 	materialWhiteRustyMetal = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
 	materialWhiteWood = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
 	materialWhiteConcrete = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	materialWhiteSciFiFabric = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
 
+	//albedos
 	materialWhiteRustyMetal->AddTextureSRV("SurfaceTexture", rustyMetalSRV);	//metal texture
 	materialWhiteWood->AddTextureSRV("SurfaceTexture", woodSRV);	//wood texture
 	materialWhiteConcrete->AddTextureSRV("SurfaceTexture", damagedConcreteSRV);	//damaged concrete texture
+	materialWhiteSciFiFabric->AddTextureSRV("SurfaceTexture", sciFiFabricSRV);	//scifi fabric texture
+
+	//roughness
+	materialWhiteRustyMetal->AddTextureSRV("SurfaceRoughness", rustyMetalRoughnessSRV);	//metal roughness
+	materialWhiteWood->AddTextureSRV("SurfaceRoughness", woodRoughnessSRV);	//wood roughness
+	materialWhiteConcrete->AddTextureSRV("SurfaceRoughness", damagedConcreteRoughnessSRV);	//damaged concrete roughness
+	materialWhiteSciFiFabric->AddTextureSRV("SurfaceRoughness", sciFiFabricRoughnessSRV);	//scifi fabric roughness
+
+	//normal map
+	materialWhiteRustyMetal->AddTextureSRV("NormalMap", rustyMetalNormalSRV);	//metal normal map
+	materialWhiteWood->AddTextureSRV("NormalMap", woodNormalSRV);	//wood normal map
+	materialWhiteConcrete->AddTextureSRV("NormalMap", damagedConcreteNormalSRV);	//damaged concrete normal map
+	materialWhiteSciFiFabric->AddTextureSRV("NormalMap", sciFiFabricNormalSRV);	//scifi fabric normal map
 
 	materialWhiteRustyMetal->AddSampler("BasicSampler", samplerState);	//sampler
 	materialWhiteWood->AddSampler("BasicSampler", samplerState);	//sampler
 	materialWhiteConcrete->AddSampler("BasicSampler", samplerState);	//sampler
+	materialWhiteSciFiFabric->AddSampler("BasicSampler", samplerState);	//sampler
 
-	materialWhiteRustyMetal->AddTextureSRV("SurfaceRoughness", rustyMetalRoughnessSRV);	//metal roughness
-	materialWhiteWood->AddTextureSRV("SurfaceRoughness", woodRoughnessSRV);	//wood roughness
-	materialWhiteConcrete->AddTextureSRV("SurfaceRoughness", damagedConcreteRoughnessSRV);	//damaged concrete roughness
 
 	//pushing to entity list
 	entityList.push_back(new Entity(mesh0, materialWhiteRustyMetal));
-	entityList.push_back(new Entity(mesh0, materialWhiteRustyMetal));
+	entityList.push_back(new Entity(mesh3, materialWhiteSciFiFabric));
 	entityList.push_back(new Entity(mesh0, materialWhiteConcrete));
 	entityList.push_back(new Entity(mesh1, materialWhiteConcrete));
-	entityList.push_back(new Entity(mesh2, materialWhiteRustyMetal));
+	entityList.push_back(new Entity(mesh2, materialWhiteSciFiFabric));
 	
 	//temporary just to make all entities visible
 	entityList[1]->GetTransform()->MoveAbsolute(0.0f, -4.0f, 0.0f);
@@ -265,7 +295,11 @@ void Game::CreateBasicGeometry()
 	entityList[3]->GetTransform()->MoveAbsolute(-4.0f, 0.0f, 0.0f);
 	entityList[4]->GetTransform()->MoveAbsolute(4.0f, 0.0f, 0.0f);
 
-	ambient = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	ambient = XMFLOAT3(0.05f, 0.05f, 0.15f);
+
+	//creating sky
+	CreateDDSTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/Skies/SunnyCubeMap.dds").c_str(), 0, skySRV.GetAddressOf());
+	skybox = new Sky(mesh0, samplerState, device, skySRV, skyPixelShader, skyVertexShader);
 }
 
 
@@ -291,7 +325,7 @@ void Game::Update(float deltaTime, float totalTime)
 	//making entities move
 	for (int i = 0; i < entityList.size(); i++)
 	{
-		entityList[i]->GetTransform()->Rotate(0, 0, .1 * deltaTime);
+		entityList[i]->GetTransform()->Rotate(0, .1f * deltaTime, 0);
 	}
 
 	camera->Update(deltaTime);
@@ -308,7 +342,7 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -351,6 +385,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		entityList[i]->GetMaterial()->GetPixelShader()->SetData("pointLight1", &pointLight1, sizeof(pointLight1));
 		entityList[i]->GetMaterial()->GetPixelShader()->SetData("pointLight2", &pointLight2, sizeof(pointLight2));
 	}
+
+	//draw sky
+	skybox->Draw(context, camera);
 
 
 	// Present the back buffer to the user

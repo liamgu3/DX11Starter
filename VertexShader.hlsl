@@ -24,6 +24,7 @@ struct VertexShaderInput
 	float3 localPosition	: POSITION;     // XYZ position
 	float2 uv				: TEXCOORD;		//UV
 	float3 normal			: NORMAL;		//surface normal
+	float3 tangent			: TANGENT;		//vector tangent to surface in u direction
 };
 
 // --------------------------------------------------------
@@ -51,6 +52,7 @@ VertexToPixel main( VertexShaderInput input )
 	output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
 
 	output.normal = mul((float3x3)worldInvTranspose, input.normal);
+	output.tangent = mul((float3x3)worldInvTranspose, input.tangent);
 
 	output.worldPosition = mul(world, float4(input.localPosition, 1)).xyz;
 

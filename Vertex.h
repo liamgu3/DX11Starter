@@ -13,4 +13,5 @@ struct Vertex
 	//DirectX::XMFLOAT4 Color;        // The color of the vertex - to remove
 	DirectX::XMFLOAT2 UV;
 	DirectX::XMFLOAT3 Normal;
+	DirectX::XMFLOAT3 Tangent;
 };

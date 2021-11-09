@@ -23,6 +23,7 @@ struct VertexToPixel
 	float2 uv				: TEXCOORD;		//UV
 	float3 normal			: NORMAL;		//surface normal
 	float3 worldPosition	: POSITION;		//world position
+	float3 tangent			: TANGENT;		//tangent to surface in u direction
 };
 
 struct Light

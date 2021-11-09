@@ -10,6 +10,8 @@
 #include "Material.h"
 #include "Lights.h"
 #include "WICTextureLoader.h"
+#include "Sky.h"
+#include "DDSTextureLoader.h"
 
 class Game 
 	: public DXCore
@@ -47,11 +49,15 @@ private:
 	std::shared_ptr<SimplePixelShader> pixelShader;
 	std::shared_ptr<SimpleVertexShader> vertexShader;
 
+	std::shared_ptr<SimplePixelShader> skyPixelShader;
+	std::shared_ptr<SimpleVertexShader> skyVertexShader;
+
 
 	//meshes, replace with shared_ptr when I figure out how to do those
 	std::shared_ptr<Mesh> mesh0;
 	std::shared_ptr<Mesh> mesh1;
 	std::shared_ptr<Mesh> mesh2;
+	std::shared_ptr<Mesh> mesh3;
 
 	//for holding entities
 	std::vector<Entity*> entityList;
@@ -66,6 +72,7 @@ private:
 	Material* materialWhiteRustyMetal;
 	Material* materialWhiteWood;
 	Material* materialWhiteConcrete;
+	Material* materialWhiteSciFiFabric;
 
 	//Lights
 	DirectX::XMFLOAT3 ambient;
@@ -75,13 +82,27 @@ private:
 	Light pointLight1;
 	Light pointLight2;
 
-	//texture
+	//textures - albedo
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> sciFiFabricSRV;
+
+	//textures - roughness
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalRoughnessSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodRoughnessSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> sciFiFabricRoughnessSRV;
+
+	//textures - normalMap
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> sciFiFabricNormalSRV;
+
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV;
+	Sky* skybox;
 };
 
