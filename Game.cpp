@@ -59,13 +59,11 @@ Game::~Game()
 	delete camera;
 
 	//deleting materials
-	delete materialRed;
-	delete materialGreen;
-	delete materialBlue;
-	delete materialWhiteRustyMetal;
-	delete materialWhiteWood;
-	delete materialWhiteConcrete;
-	delete materialWhiteSciFiFabric;
+	delete matBronze;
+	delete matCobblestone;
+	delete matFloor;
+	delete matPaint;
+	delete matScratched;
 
 	delete skybox;
 }
@@ -99,35 +97,35 @@ void Game::Init()
 	directionalLight1 = {};
 	directionalLight1.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);	//points right
-	directionalLight1.color = XMFLOAT3(1.0f, 0.2f, 0.2f);	//colored light
-	//directionalLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
-	directionalLight1.intensity = 0.5f;
+	//directionalLight1.color = XMFLOAT3(1.0f, 0.2f, 0.2f);	//colored red light
+	directionalLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight1.intensity = 1.0f;
 
 	directionalLight2 = {};
 	directionalLight2.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.direction = XMFLOAT3(-1.0, 0.0, 0.0);	//points left
-	directionalLight2.color = XMFLOAT3(0.2f, 0.2f, 1.0f);	//colored light
-	//directionalLight2.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
-	directionalLight2.intensity = 0.5f;
+	//directionalLight2.color = XMFLOAT3(0.2f, 0.2f, 1.0f);	//colored blue light
+	directionalLight2.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight2.intensity = 1.0f;
 
 	directionalLight3 = {};
 	directionalLight3.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight3.direction = XMFLOAT3(0.0, -1.0, 0.0);	//points down
-	directionalLight3.color = XMFLOAT3(0.2f, 1.0f, 0.2f);	//colored light
-	//directionalLight3.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
-	directionalLight3.intensity = 0.5f;
+	//directionalLight3.color = XMFLOAT3(0.2f, 1.0f, 0.2f);	//colored green light
+	directionalLight3.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight3.intensity = 1.0f;
 
 	pointLight1 = {};
 	pointLight1.type = LIGHT_TYPE_POINT;
 	pointLight1.color = XMFLOAT3(1.0, 1.0, 1.0);
-	pointLight1.intensity = 0.5f;
+	pointLight1.intensity = 2.0f;
 	pointLight1.position = XMFLOAT3(-2.0, 0.0, -1.0);
 	pointLight1.range = 3.0f;
 
 	pointLight2 = {};
 	pointLight2.type = LIGHT_TYPE_POINT;
 	pointLight2.color = XMFLOAT3(1.0, 1.0, 1.0);
-	pointLight2.intensity = 0.5f;
+	pointLight2.intensity = 2.0f;
 	pointLight2.position = XMFLOAT3(2.0, 2.0, 0.0);
 	pointLight2.range = 3.0f;
 }
@@ -223,21 +221,32 @@ void Game::CreateBasicGeometry()
 	mesh3 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/cylinder.obj").c_str(), device, context);
 
 	//creating textures
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_albedo.tif").c_str(), 0, rustyMetalSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld_albedo.tif").c_str(), 0, woodSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_albedo.tif").c_str(), 0, damagedConcreteSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Scifi_Pattern_albedo.tif").c_str(), 0, sciFiFabricSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_albedo.png").c_str(), 0, bronzeAlbedoSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/cobblestone_albedo.png").c_str(), 0, cobblestoneAlbedoSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_albedo.png").c_str(), 0, floorAlbedoSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_albedo.png").c_str(), 0, paintAlbedoSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_albedo.png").c_str(), 0, scratchedAlbedoSRV.GetAddressOf());
 	
 	//creating roughness textures
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_roughness.tif").c_str(), 0, rustyMetalRoughnessSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld3_roughness.tif").c_str(), 0, woodRoughnessSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_roughness.tif").c_str(), 0, damagedConcreteRoughnessSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Scifi_Pattern_roughness.tif").c_str(), 0, sciFiFabricRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/cobblestone_roughness.png").c_str(), 0, cobblestoneRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_roughness.png").c_str(), 0, floorRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_roughness.png").c_str(), 0, paintRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
 
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Rust_normal.tif").c_str(), 0, rustyMetalNormalSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wood_PlanksOld_normal.tif").c_str(), 0, woodNormalSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Wall_ConcreteDamagedRebar_normal.tif").c_str(), 0, damagedConcreteNormalSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/TexturesCom_Scifi_Pattern_normal.tif").c_str(), 0, sciFiFabricNormalSRV.GetAddressOf());
+	//creating normalMap textures
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_normals.png").c_str(), 0, bronzeNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/cobblestone_normals.png").c_str(), 0, cobblestoneNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_normals.png").c_str(), 0, floorNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_normals.png").c_str(), 0, paintNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_normals.png").c_str(), 0, scratchedNormalSRV.GetAddressOf());
+
+	//creating metalnessMap textures
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_metal.png").c_str(), 0, bronzeMetalnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/cobblestone_metal.png").c_str(), 0, cobblestoneMetalnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_metal.png").c_str(), 0, floorMetalnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_metal.png").c_str(), 0, paintMetalnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_metal.png").c_str(), 0, scratchedMetalnessSRV.GetAddressOf());
 
 	//creating sampler
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -249,45 +258,64 @@ void Game::CreateBasicGeometry()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device.Get()->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
 
+	//OLD MATERIALS
+	//materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), 0.8f, pixelShader, vertexShader);
+	//materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), 0.8f, pixelShader, vertexShader);
+	//materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), 0.8f, pixelShader, vertexShader);
+	//materialWhiteRustyMetal = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	//materialWhiteWood = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	//materialWhiteConcrete = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	//materialWhiteSciFiFabric = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+
 	//materials
-	materialRed = new Material(XMFLOAT4(1.0f, 0.5f, 0.5f, 0.0f), 0.8f, pixelShader, vertexShader);
-	materialGreen = new Material(XMFLOAT4(0.5f, 1.0f, 0.5f, 0.0f), 0.8f, pixelShader, vertexShader);
-	materialBlue = new Material(XMFLOAT4(0.5f, 0.5f, 1.0f, 0.0f), 0.8f, pixelShader, vertexShader);
-	materialWhiteRustyMetal = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
-	materialWhiteWood = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
-	materialWhiteConcrete = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
-	materialWhiteSciFiFabric = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), 0.5f, pixelShader, vertexShader);
+	matBronze = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
+	matCobblestone = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
+	matFloor = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
+	matPaint = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
+	matScratched = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
 
 	//albedos
-	materialWhiteRustyMetal->AddTextureSRV("SurfaceTexture", rustyMetalSRV);	//metal texture
-	materialWhiteWood->AddTextureSRV("SurfaceTexture", woodSRV);	//wood texture
-	materialWhiteConcrete->AddTextureSRV("SurfaceTexture", damagedConcreteSRV);	//damaged concrete texture
-	materialWhiteSciFiFabric->AddTextureSRV("SurfaceTexture", sciFiFabricSRV);	//scifi fabric texture
+	matBronze->AddTextureSRV("SurfaceTexture", bronzeAlbedoSRV);
+	matCobblestone->AddTextureSRV("SurfaceTexture", cobblestoneAlbedoSRV);
+	matFloor->AddTextureSRV("SurfaceTexture", floorAlbedoSRV);
+	matPaint->AddTextureSRV("SurfaceTexture", paintAlbedoSRV);
+	matScratched->AddTextureSRV("SurfaceTexture", scratchedAlbedoSRV);
 
 	//roughness
-	materialWhiteRustyMetal->AddTextureSRV("SurfaceRoughness", rustyMetalRoughnessSRV);	//metal roughness
-	materialWhiteWood->AddTextureSRV("SurfaceRoughness", woodRoughnessSRV);	//wood roughness
-	materialWhiteConcrete->AddTextureSRV("SurfaceRoughness", damagedConcreteRoughnessSRV);	//damaged concrete roughness
-	materialWhiteSciFiFabric->AddTextureSRV("SurfaceRoughness", sciFiFabricRoughnessSRV);	//scifi fabric roughness
+	matBronze->AddTextureSRV("SurfaceRoughness", bronzeRoughnessSRV);
+	matCobblestone->AddTextureSRV("SurfaceRoughness", cobblestoneRoughnessSRV);
+	matFloor->AddTextureSRV("SurfaceRoughness", floorRoughnessSRV);
+	matPaint->AddTextureSRV("SurfaceRoughness", paintRoughnessSRV);
+	matScratched->AddTextureSRV("SurfaceRoughness", scratchedRoughnessSRV);
 
-	//normal map
-	materialWhiteRustyMetal->AddTextureSRV("NormalMap", rustyMetalNormalSRV);	//metal normal map
-	materialWhiteWood->AddTextureSRV("NormalMap", woodNormalSRV);	//wood normal map
-	materialWhiteConcrete->AddTextureSRV("NormalMap", damagedConcreteNormalSRV);	//damaged concrete normal map
-	materialWhiteSciFiFabric->AddTextureSRV("NormalMap", sciFiFabricNormalSRV);	//scifi fabric normal map
+	//normalMaps
+	matBronze->AddTextureSRV("NormalMap", bronzeNormalSRV);
+	matCobblestone->AddTextureSRV("NormalMap", cobblestoneNormalSRV);
+	matFloor->AddTextureSRV("NormalMap", floorNormalSRV);
+	matPaint->AddTextureSRV("NormalMap", paintNormalSRV);
+	matScratched->AddTextureSRV("NormalMap", scratchedNormalSRV);
 
-	materialWhiteRustyMetal->AddSampler("BasicSampler", samplerState);	//sampler
-	materialWhiteWood->AddSampler("BasicSampler", samplerState);	//sampler
-	materialWhiteConcrete->AddSampler("BasicSampler", samplerState);	//sampler
-	materialWhiteSciFiFabric->AddSampler("BasicSampler", samplerState);	//sampler
+	//metalnessMaps
+	matBronze->AddTextureSRV("MetalnessMap", bronzeMetalnessSRV);
+	matCobblestone->AddTextureSRV("MetalnessMap", cobblestoneMetalnessSRV);
+	matFloor->AddTextureSRV("MetalnessMap", floorMetalnessSRV);
+	matPaint->AddTextureSRV("MetalnessMap", paintMetalnessSRV);
+	matScratched->AddTextureSRV("MetalnessMap", scratchedMetalnessSRV);
+
+	//samplers
+	matBronze->AddSampler("BasicSampler", samplerState);
+	matCobblestone->AddSampler("BasicSampler", samplerState);
+	matFloor->AddSampler("BasicSampler", samplerState);
+	matPaint->AddSampler("BasicSampler", samplerState);
+	matScratched->AddSampler("BasicSampler", samplerState);
 
 
 	//pushing to entity list
-	entityList.push_back(new Entity(mesh0, materialWhiteRustyMetal));
-	entityList.push_back(new Entity(mesh3, materialWhiteSciFiFabric));
-	entityList.push_back(new Entity(mesh0, materialWhiteConcrete));
-	entityList.push_back(new Entity(mesh1, materialWhiteConcrete));
-	entityList.push_back(new Entity(mesh2, materialWhiteSciFiFabric));
+	entityList.push_back(new Entity(mesh1, matBronze));
+	entityList.push_back(new Entity(mesh1, matCobblestone));
+	entityList.push_back(new Entity(mesh1, matFloor));
+	entityList.push_back(new Entity(mesh1, matPaint));
+	entityList.push_back(new Entity(mesh1, matScratched));
 	
 	//temporary just to make all entities visible
 	entityList[1]->GetTransform()->MoveAbsolute(0.0f, -4.0f, 0.0f);

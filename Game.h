@@ -66,13 +66,18 @@ private:
 	Camera* camera;
 
 	//materials
-	Material* materialRed;
-	Material* materialBlue;
-	Material* materialGreen;
-	Material* materialWhiteRustyMetal;
-	Material* materialWhiteWood;
-	Material* materialWhiteConcrete;
-	Material* materialWhiteSciFiFabric;
+	//Material* materialRed;
+	//Material* materialBlue;
+	//Material* materialGreen;
+	//Material* materialWhiteRustyMetal;
+	//Material* materialWhiteWood;
+	//Material* materialWhiteConcrete;
+	//Material* materialWhiteSciFiFabric;
+	Material* matBronze;
+	Material* matCobblestone;
+	Material* matFloor;
+	Material* matPaint;
+	Material* matScratched;
 
 	//Lights
 	DirectX::XMFLOAT3 ambient;
@@ -83,22 +88,32 @@ private:
 	Light pointLight2;
 
 	//textures - albedo
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> sciFiFabricSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeAlbedoSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneAlbedoSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorAlbedoSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintAlbedoSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedAlbedoSRV;
 
 	//textures - roughness
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalRoughnessSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodRoughnessSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteRoughnessSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> sciFiFabricRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedRoughnessSRV;
 
 	//textures - normalMap
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalNormalSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodNormalSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> damagedConcreteNormalSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> sciFiFabricNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedNormalSRV;
+
+	//textures - metalnessMap
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeMetalnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneMetalnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorMetalnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintMetalnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedMetalnessSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
