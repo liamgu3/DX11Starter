@@ -24,6 +24,7 @@ struct VertexToPixel
 	float3 normal			: NORMAL;		//surface normal
 	float3 worldPosition	: POSITION;		//world position
 	float3 tangent			: TANGENT;		//tangent to surface in u direction
+	float4 posForShadow		: SHADOWPOS;
 };
 
 struct Light
@@ -36,7 +37,13 @@ struct Light
 	float intensity;				//all lights need an intensity
 	float3 color;		//all lights need a color
 	float spotFalloff;				//spot lights need a value to restrict their cone
-	float3 padding;		//padding to hit 16-byte boundary
+	int castsShadows;	//determines if light casts a shadow
+	float2 padding;		//padding to hit 16-byte boundary
+};
+
+struct VertexToPixel_Shadow
+{
+	float4 screenPosition	: SV_POSITION;
 };
 
 #endif

@@ -33,6 +33,7 @@ private:
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
 	void CreateBasicGeometry();
+	void RenderShadowMap();
 
 	
 	// Note the usage of ComPtr below
@@ -48,6 +49,8 @@ private:
 	// Shaders and shader-related constructs
 	std::shared_ptr<SimplePixelShader> pixelShader;
 	std::shared_ptr<SimpleVertexShader> vertexShader;
+
+	std::shared_ptr<SimpleVertexShader> shadowVS;
 
 	std::shared_ptr<SimplePixelShader> skyPixelShader;
 	std::shared_ptr<SimpleVertexShader> skyVertexShader;
@@ -119,5 +122,13 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV;
 	Sky* skybox;
+
+	//shadow stuff
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
+	DirectX::XMFLOAT4X4 shadowViewMatrix;
+	DirectX::XMFLOAT4X4 shadowProjectionMatrix;
 };
 

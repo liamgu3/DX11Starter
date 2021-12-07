@@ -8,7 +8,10 @@ Texture2D SurfaceTexture	: register(t0);	//"t" registers for textures
 Texture2D SurfaceRoughness	: register(t1);
 Texture2D NormalMap			: register(t2);
 Texture2D MetalnessMap		: register(t3);
-SamplerState BasicSampler	: register(s0);	//"s" registers for samplers
+Texture2D ShadowMap			: register(t4);
+
+SamplerState BasicSampler				: register(s0);	//"s" registers for samplers
+SamplerComparisonState ShadowSampler	: register(s1);
 
 cbuffer ExternalData : register(b0)
 {
@@ -16,11 +19,11 @@ cbuffer ExternalData : register(b0)
 	float roughness;
 	float3 cameraPos;
 	float3 ambient;
-	Light directionalLight1;
-	Light directionalLight2;
+	//Light directionalLight1;
+	//Light directionalLight2;
 	Light directionalLight3;
-	Light pointLight1;
-	Light pointLight2;
+	//Light pointLight1;
+	//Light pointLight2;
 }
 
 // Lambert diffuse BRDF - Same as the basic lighting diffuse calculation!
@@ -172,12 +175,22 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float3 specularColor = lerp(F0_NON_METAL.rrr, surfaceColor.rgb, pixelMetalness);
 
+	//shadow mapping
+	float2 shadowUV = input.posForShadow.xy / input.posForShadow.w * 0.f + 0.5f;
+	shadowUV.y = 1.0f - shadowUV.y;
+
+	//calculate pixel's depth from light
+	float depthFromLight = input.posForShadow.z / input.posForShadow.w;
+
+	//sample shadow map using comparison sampler, comparing depth from light and value in shadow map
+	float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight);
+
 	//might need to go opposite direction
-	float diffuse1 = DiffusePBR(normalize(input.normal), normalize(-directionalLight1.direction));		//directionalLight1	
-	float diffuse2 = DiffusePBR(normalize(input.normal), normalize(-directionalLight2.direction));		//directionalLight2
+	//float diffuse1 = DiffusePBR(normalize(input.normal), normalize(-directionalLight1.direction));		//directionalLight1	
+	//float diffuse2 = DiffusePBR(normalize(input.normal), normalize(-directionalLight2.direction));		//directionalLight2
 	float diffuse3 = DiffusePBR(normalize(input.normal), normalize(-directionalLight3.direction));		//directionalLight3 
-	float diffuse4 = DiffusePBR(normalize(input.normal), normalize(input.worldPosition - pointLight1.position));// *Attenuate(pointLight1, input.worldPosition);	//pointLight1
-	float diffuse5 = DiffusePBR(normalize(input.normal), normalize(input.worldPosition - pointLight2.position));// *Attenuate(pointLight2, input.worldPosition);	//pointLight2
+	//float diffuse4 = DiffusePBR(normalize(input.normal), normalize(input.worldPosition - pointLight1.position));// *Attenuate(pointLight1, input.worldPosition);	//pointLight1
+	//float diffuse5 = DiffusePBR(normalize(input.normal), normalize(input.worldPosition - pointLight2.position));// *Attenuate(pointLight2, input.worldPosition);	//pointLight2
 
 	//OLD DIFFUSE CALCULATIONS
 	////calculating diffuse lighting
@@ -189,11 +202,11 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float3 V = normalize(cameraPos - input.worldPosition);
 
-	float3 specular1 = MicrofacetBRDF(input.normal, -directionalLight1.direction, V, pixelRoughness, specularColor);		//directionalLight1
-	float3 specular2 = MicrofacetBRDF(input.normal, -directionalLight2.direction, V, pixelRoughness, specularColor);		//directionalLight2
+	//float3 specular1 = MicrofacetBRDF(input.normal, -directionalLight1.direction, V, pixelRoughness, specularColor);		//directionalLight1
+	//float3 specular2 = MicrofacetBRDF(input.normal, -directionalLight2.direction, V, pixelRoughness, specularColor);		//directionalLight2
 	float3 specular3 = MicrofacetBRDF(input.normal, -directionalLight3.direction, V, pixelRoughness, specularColor);		//directionalLight3
-	float3 specular4 = MicrofacetBRDF(input.normal, normalize(input.worldPosition - pointLight1.position), V, pixelRoughness, specularColor);// *Attenuate(pointLight1, input.worldPosition);	//pointLight1
-	float3 specular5 = MicrofacetBRDF(input.normal, normalize(input.worldPosition - pointLight2.position), V, pixelRoughness, specularColor);// *Attenuate(pointLight2, input.worldPosition);	//pointLight2
+	//float3 specular4 = MicrofacetBRDF(input.normal, normalize(input.worldPosition - pointLight1.position), V, pixelRoughness, specularColor);// *Attenuate(pointLight1, input.worldPosition);	//pointLight1
+	//float3 specular5 = MicrofacetBRDF(input.normal, normalize(input.worldPosition - pointLight2.position), V, pixelRoughness, specularColor);// *Attenuate(pointLight2, input.worldPosition);	//pointLight2
 
 	//OLD SPECULAR CALCULATIONS
 	////calculating specular lighting
@@ -214,22 +227,23 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//}
 
 	//calculate diffuse with energy conservation
-	float3 balancedDiff1 = DiffuseEnergyConserve(diffuse1, specular1, pixelMetalness);		//directionalLight1
-	float3 balancedDiff2 = DiffuseEnergyConserve(diffuse2, specular2, pixelMetalness);		//directionalLight2
+	//float3 balancedDiff1 = DiffuseEnergyConserve(diffuse1, specular1, pixelMetalness);		//directionalLight1
+	//float3 balancedDiff2 = DiffuseEnergyConserve(diffuse2, specular2, pixelMetalness);		//directionalLight2
 	float3 balancedDiff3 = DiffuseEnergyConserve(diffuse3, specular3, pixelMetalness);		//directionalLight3
-	float3 balancedDiff4 = DiffuseEnergyConserve(diffuse4, specular4, pixelMetalness);		//pointLight1
-	float3 balancedDiff5 = DiffuseEnergyConserve(diffuse5, specular5, pixelMetalness);		//pointLight2
+	//float3 balancedDiff4 = DiffuseEnergyConserve(diffuse4, specular4, pixelMetalness);		//pointLight1
+	//float3 balancedDiff5 = DiffuseEnergyConserve(diffuse5, specular5, pixelMetalness);		//pointLight2
 
 	//combine the final diffuse and specular values for this light
-	float3 total1 = (balancedDiff1 * surfaceColor + specular1) * directionalLight1.intensity * directionalLight1.color;
-	float3 total2 = (balancedDiff2 * surfaceColor + specular2) * directionalLight2.intensity * directionalLight2.color;
+	//float3 total1 = (balancedDiff1 * surfaceColor + specular1) * directionalLight1.intensity * directionalLight1.color;
+	//float3 total2 = (balancedDiff2 * surfaceColor + specular2) * directionalLight2.intensity * directionalLight2.color;
 	float3 total3 = (balancedDiff3 * surfaceColor + specular3) * directionalLight3.intensity * directionalLight3.color;
-	float3 total4 = (balancedDiff4 * surfaceColor + specular4) * pointLight1.intensity * pointLight1.color;
-	float3 total5 = (balancedDiff5 * surfaceColor + specular5) * pointLight2.intensity * pointLight2.color;
+	//float3 total4 = (balancedDiff4 * surfaceColor + specular4) * pointLight1.intensity * pointLight1.color;
+	//float3 total5 = (balancedDiff5 * surfaceColor + specular5) * pointLight2.intensity * pointLight2.color;
 
 	//OLD FINAL COLOR CALCULATION
 	//float3 finalPixelColor = specular1 + specular2 + specular3 + specular4 + specular5 + diffuse1 + diffuse2 + diffuse3 + diffuse4 + diffuse5 + (ambient * colorTint) + (surfaceColor * colorTint);
-	float3 finalPixelColor = total1 + total2 + total3 + total4 + total5; // +(ambient * colorTint);	//might not need ambient
+	//float3 finalPixelColor = total1 + total2 + total3 + total4 + total5; // +(ambient * colorTint);	//might not need ambient
+	float3 finalPixelColor = total3 * (directionalLight3.castsShadows ? shadowAmount : 1.0f);	//only overhead light
 
 	return float4(pow(finalPixelColor, 1.0f / 2.2), 1);
 	//return float4(directionalLight1.color, 1);		//temporary test

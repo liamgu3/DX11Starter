@@ -6,6 +6,9 @@ cbuffer ExternalData : register(b0)
 	matrix view;
 	matrix projection;
 	matrix worldInvTranspose;
+
+	matrix shadowView;
+	matrix shadowProjection;
 }
 
 
@@ -63,6 +66,11 @@ VertexToPixel main( VertexShaderInput input )
 
 	//pass the UV through
 	output.uv = input.uv;
+	//output.uv = float2(input.uv.x * 5, input.uv.y * 5);		//scales texture down by factor of 5
+
+	//shadow stuff
+	matrix shadowWVP = mul(shadowProjection, mul(shadowView, world));
+	output.posForShadow = mul(shadowWVP, float4(input.localPosition, 1.0f));
 
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)

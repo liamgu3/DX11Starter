@@ -15,5 +15,6 @@ struct Light
 	float intensity;				//all lights need an intensity
 	DirectX::XMFLOAT3 color;		//all lights need a color
 	float spotFalloff;				//spot lights need a value to restrict their cone
-	DirectX::XMFLOAT3 padding;		//padding to hit 16-byte boundary
+	int castsShadows;				//does this cast shadows?
+	DirectX::XMFLOAT2 padding;		//padding to hit 16-byte boundary
 };
