@@ -176,7 +176,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 specularColor = lerp(F0_NON_METAL.rrr, surfaceColor.rgb, pixelMetalness);
 
 	//shadow mapping
-	float2 shadowUV = input.posForShadow.xy / input.posForShadow.w * 0.5f + 0.5f;
+	float2 shadowUV = input.posForShadow.xy / input.posForShadow.w * 0.f + 0.5f;
 	shadowUV.y = 1.0f - shadowUV.y;
 
 	//calculate pixel's depth from light
@@ -243,7 +243,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//OLD FINAL COLOR CALCULATION
 	//float3 finalPixelColor = specular1 + specular2 + specular3 + specular4 + specular5 + diffuse1 + diffuse2 + diffuse3 + diffuse4 + diffuse5 + (ambient * colorTint) + (surfaceColor * colorTint);
 	//float3 finalPixelColor = total1 + total2 + total3 + total4 + total5; // +(ambient * colorTint);	//might not need ambient
-	
 	float3 finalPixelColor = total3 * (directionalLight3.castsShadows ? shadowAmount : 1.0f);	//only overhead light
 
 	return float4(pow(finalPixelColor, 1.0f / 2.2), 1);
