@@ -64,6 +64,8 @@ Game::~Game()
 	delete matFloor;
 	delete matPaint;
 	delete matScratched;
+	delete matTree;
+	delete matMoss;
 
 	delete skybox;
 }
@@ -98,7 +100,7 @@ void Game::Init()
 	directionalLight1.type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight1.direction = XMFLOAT3(1.0, 0.0, 0.0);	//points right
 	//directionalLight1.color = XMFLOAT3(1.0f, 0.2f, 0.2f);	//colored red light
-	directionalLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f);	//white light
+	directionalLight1.color = XMFLOAT3(0.76f, 0.66f, 0.46f);	//white light
 	directionalLight1.intensity = 1.0f;
 
 	directionalLight2 = {};
@@ -223,12 +225,16 @@ void Game::CreateBasicGeometry()
 
 	mesh3 = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/cylinder.obj").c_str(), device, context);
 
+	treeMesh = std::make_shared<Mesh>(GetFullPathTo("../../Assets/Models/tree.obj").c_str(), device, context);
+
 	//creating textures
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_albedo.png").c_str(), 0, bronzeAlbedoSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/cobblestone_albedo.png").c_str(), 0, cobblestoneAlbedoSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_albedo.png").c_str(), 0, floorAlbedoSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_albedo.png").c_str(), 0, paintAlbedoSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_albedo.png").c_str(), 0, scratchedAlbedoSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/tree_albedo.jpg").c_str(), 0, treeAlbedoSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/moss_albedo.png").c_str(), 0, mossAlbedoSRV.GetAddressOf());
 	
 	//creating roughness textures
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
@@ -236,6 +242,9 @@ void Game::CreateBasicGeometry()
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_roughness.png").c_str(), 0, floorRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_roughness.png").c_str(), 0, paintRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/tree_roughness.jpg").c_str(), 0, treeRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/dark1_roughness.png").c_str(), 0, mossRoughnessSRV.GetAddressOf());
+
 
 	//creating normalMap textures
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_normals.png").c_str(), 0, bronzeNormalSRV.GetAddressOf());
@@ -243,6 +252,8 @@ void Game::CreateBasicGeometry()
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_normals.png").c_str(), 0, floorNormalSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_normals.png").c_str(), 0, paintNormalSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_normals.png").c_str(), 0, scratchedNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/tree_normals.png").c_str(), 0, treeNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/moss_normals.png").c_str(), 0, mossNormalSRV.GetAddressOf());
 
 	//creating metalnessMap textures
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/bronze_metal.png").c_str(), 0, bronzeMetalnessSRV.GetAddressOf());
@@ -250,6 +261,8 @@ void Game::CreateBasicGeometry()
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/floor_metal.png").c_str(), 0, floorMetalnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_metal.png").c_str(), 0, paintMetalnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/scratched_metal.png").c_str(), 0, scratchedMetalnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/tree_metal.jpg").c_str(), 0, treeMetalnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/PBR/moss_metal.jpg").c_str(), 0, mossMetalnessSRV.GetAddressOf());
 
 	//creating sampler
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -276,6 +289,8 @@ void Game::CreateBasicGeometry()
 	matFloor = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
 	matPaint = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
 	matScratched = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
+	matTree = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
+	matMoss = new Material(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.8f, pixelShader, vertexShader);
 
 	//albedos
 	matBronze->AddTextureSRV("SurfaceTexture", bronzeAlbedoSRV);
@@ -283,6 +298,8 @@ void Game::CreateBasicGeometry()
 	matFloor->AddTextureSRV("SurfaceTexture", floorAlbedoSRV);
 	matPaint->AddTextureSRV("SurfaceTexture", paintAlbedoSRV);
 	matScratched->AddTextureSRV("SurfaceTexture", scratchedAlbedoSRV);
+	matTree->AddTextureSRV("SurfaceTexture", treeAlbedoSRV);
+	matMoss->AddTextureSRV("SurfaceTexture", mossAlbedoSRV);
 
 	//roughness
 	matBronze->AddTextureSRV("SurfaceRoughness", bronzeRoughnessSRV);
@@ -290,6 +307,8 @@ void Game::CreateBasicGeometry()
 	matFloor->AddTextureSRV("SurfaceRoughness", floorRoughnessSRV);
 	matPaint->AddTextureSRV("SurfaceRoughness", paintRoughnessSRV);
 	matScratched->AddTextureSRV("SurfaceRoughness", scratchedRoughnessSRV);
+	matTree->AddTextureSRV("SurfaceRoughness", treeRoughnessSRV);
+	matMoss->AddTextureSRV("SurfaceRoughness", mossRoughnessSRV);
 
 	//normalMaps
 	matBronze->AddTextureSRV("NormalMap", bronzeNormalSRV);
@@ -297,6 +316,8 @@ void Game::CreateBasicGeometry()
 	matFloor->AddTextureSRV("NormalMap", floorNormalSRV);
 	matPaint->AddTextureSRV("NormalMap", paintNormalSRV);
 	matScratched->AddTextureSRV("NormalMap", scratchedNormalSRV);
+	matTree->AddTextureSRV("NormalMap", treeNormalSRV);
+	matMoss->AddTextureSRV("NormalMap", mossNormalSRV);
 
 	//metalnessMaps
 	matBronze->AddTextureSRV("MetalnessMap", bronzeMetalnessSRV);
@@ -304,6 +325,16 @@ void Game::CreateBasicGeometry()
 	matFloor->AddTextureSRV("MetalnessMap", floorMetalnessSRV);
 	matPaint->AddTextureSRV("MetalnessMap", paintMetalnessSRV);
 	matScratched->AddTextureSRV("MetalnessMap", scratchedMetalnessSRV);
+	matTree->AddTextureSRV("MetalnessMap", treeMetalnessSRV);
+	matMoss->AddTextureSRV("MetalnessMap", mossMetalnessSRV);
+
+	//shadowMaps
+	//matBronze->AddTextureSRV("ShadowMap", shadowSRV);
+	//matCobblestone->AddTextureSRV("ShadowMap", shadowSRV);
+	//matFloor->AddTextureSRV("ShadowMap", shadowSRV);
+	//matPaint->AddTextureSRV("ShadowMap", shadowSRV);
+	//matScratched->AddTextureSRV("ShadowMap", shadowSRV);
+	//matTree->AddTextureSRV("ShadowMap", shadowSRV);
 
 	//samplers
 	matBronze->AddSampler("BasicSampler", samplerState);
@@ -311,24 +342,50 @@ void Game::CreateBasicGeometry()
 	matFloor->AddSampler("BasicSampler", samplerState);
 	matPaint->AddSampler("BasicSampler", samplerState);
 	matScratched->AddSampler("BasicSampler", samplerState);
-
+	matTree->AddSampler("BasicSampler", samplerState);
+	matMoss->AddSampler("BasicSampler", samplerState);
 
 	//pushing to entity list
-	entityList.push_back(new Entity(mesh0, matCobblestone));
-	entityList[0]->GetTransform()->SetScale(50, 50, 50);
-	entityList[0]->GetTransform()->SetPosition(0, -27.5, 0);
+	entityList.push_back(new Entity(mesh0, matMoss));
+	entityList[0]->GetTransform()->SetScale(70, 70, 70);
+	entityList[0]->GetTransform()->SetPosition(0, -37.5, 0);
+
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	entityList.push_back(new Entity(treeMesh, matTree));
+	
+	//placing trees
+	entityList[1]->GetTransform()->Scale(.01, .01, .01);
+	entityList[1]->GetTransform()->MoveAbsolute(-7.5f, -2.5f, 9.0f);
+	entityList[2]->GetTransform()->Scale(.01, .01, .01);
+	entityList[2]->GetTransform()->MoveAbsolute(15.0f, -2.5f, -4.0f);
+	entityList[3]->GetTransform()->Scale(.01, .01, .01);
+	entityList[3]->GetTransform()->MoveAbsolute(0.0f, -2.5f, 2.0f);
+	entityList[4]->GetTransform()->Scale(.01, .01, .01);
+	entityList[4]->GetTransform()->MoveAbsolute(-15.0f, -2.5f, -7.0f);
+	entityList[5]->GetTransform()->Scale(.01, .01, .01);
+	entityList[5]->GetTransform()->MoveAbsolute(4.5f, -2.5f, 5.0f);
+	entityList[6]->GetTransform()->Scale(.01, .01, .01);
+	entityList[6]->GetTransform()->MoveAbsolute(8.0f, -2.5f, -5.0f);
+	entityList[7]->GetTransform()->Scale(.01, .01, .01);
+	entityList[7]->GetTransform()->MoveAbsolute(4.5f, -2.5f, -5.0f);
+	entityList[8]->GetTransform()->Scale(.01, .01, .01);
+	entityList[8]->GetTransform()->MoveAbsolute(2.0f, -2.5f, -15.0f);
 
 	entityList.push_back(new Entity(mesh1, matBronze));
-	entityList.push_back(new Entity(mesh1, matCobblestone));
-	entityList.push_back(new Entity(mesh1, matFloor));
-	entityList.push_back(new Entity(mesh1, matPaint));
-	entityList.push_back(new Entity(mesh1, matScratched));
-	
-	//place objects
-	entityList[2]->GetTransform()->MoveAbsolute(0.0f, -4.0f, 0.0f);
-	entityList[3]->GetTransform()->MoveAbsolute(0.0f, 4.0f, 0.0f);
-	entityList[4]->GetTransform()->MoveAbsolute(-4.0f, 0.0f, 0.0f);
-	entityList[5]->GetTransform()->MoveAbsolute(4.0f, 0.0f, 0.0f);
+	entityList.push_back(new Entity(mesh1, matBronze));
+	entityList.push_back(new Entity(mesh1, matBronze));
+	entityList.push_back(new Entity(mesh1, matBronze));
+
+	entityList[9]->GetTransform()->MoveAbsolute(-5.0f, -2.25f, 0.0f);
+	entityList[10]->GetTransform()->MoveAbsolute(4.0f, -2.25f, 2.0f);
+	entityList[11]->GetTransform()->MoveAbsolute(3.0f, -2.25f, -12.0f);
+	entityList[12]->GetTransform()->MoveAbsolute(-3.0f, -2.25f, -7.0f);
 
 	ambient = XMFLOAT3(0.05f, 0.05f, 0.15f);
 
@@ -378,6 +435,15 @@ void Game::CreateBasicGeometry()
 	shadowSampDesc.BorderColor[3] = 1.0f;
 	device->CreateSamplerState(&shadowSampDesc, &shadowSampler);
 
+	//shadow samplers
+	matBronze->AddSampler("ShadowSampler", shadowSampler);
+	matCobblestone->AddSampler("ShadowSampler", shadowSampler);
+	matFloor->AddSampler("ShadowSampler", shadowSampler);
+	matPaint->AddSampler("ShadowSampler", shadowSampler);
+	matScratched->AddSampler("ShadowSampler", shadowSampler);
+	matTree->AddSampler("ShadowSampler", shadowSampler);
+	matMoss->AddSampler("ShadowSampler", shadowSampler);
+
 	//Rasterizer State
 	D3D11_RASTERIZER_DESC shadowRastDesc = {};
 	shadowRastDesc.FillMode = D3D11_FILL_SOLID;
@@ -392,19 +458,36 @@ void Game::CreateBasicGeometry()
 
 	//view matrix
 	XMMATRIX shadowView = XMMatrixLookAtLH(
-		XMVectorSet(0, 30, 0, 0),
+		XMVectorSet(0, 40, -20, 0),
 		XMVectorSet(0, 0, 0, 0),
 		XMVectorSet(0, 1, 0, 0)
 	);
 	XMStoreFloat4x4(&shadowViewMatrix, shadowView);
 
 	//orthographic projection matrix
-	XMMATRIX shadowProj = XMMatrixOrthographicLH(2048, 2048, 0.1f, 100.0f);	//might need to make size bigger if required to encompass scene
+	XMMATRIX shadowProj = XMMatrixOrthographicLH(50, 50, 0.1f, 100.0f);
 	XMStoreFloat4x4(&shadowProjectionMatrix, shadowProj);
 
 	//creating sky
-	CreateDDSTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/Skies/SunnyCubeMap.dds").c_str(), 0, skySRV.GetAddressOf());
-	skybox = new Sky(mesh0, samplerState, device, skySRV, skyPixelShader, skyVertexShader);
+	//CreateDDSTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/Skies/SunnyCubeMap.dds").c_str(), 0, skySRV.GetAddressOf());
+	//skybox = new Sky(mesh0, samplerState, device, skySRV, skyPixelShader, skyVertexShader);
+
+
+	// Create the sky
+	skybox = new Sky(
+		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/right.png").c_str(),
+		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/left.png").c_str(),
+		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/up.png").c_str(),
+		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/down.png").c_str(),
+		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/front.png").c_str(),
+		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/back.png").c_str(),
+		mesh0.get(),
+		skyVertexShader,
+		skyPixelShader,
+		samplerState,
+		device,
+		context);
+
 }
 
 
@@ -428,13 +511,13 @@ void Game::OnResize()
 void Game::Update(float deltaTime, float totalTime)
 {
 	//making entities move
-	for (int i = 0; i < entityList.size(); i++)
-	{
-		if (i != 0)
-		{
-			entityList[i]->GetTransform()->Rotate(0, .1f * deltaTime, 0);
-		}
-	}
+	//for (int i = 0; i < entityList.size(); i++)
+	//{
+	//	if (i != 0)
+	//	{
+	//		entityList[i]->GetTransform()->Rotate(0, .1f * deltaTime, 0);
+	//	}
+	//}
 
 	camera->Update(deltaTime);
 
@@ -463,6 +546,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		0);
 
 
+	// Render the shadow map before rendering anything to the screen
+	RenderShadowMap();
+
 	// Set the vertex and pixel shaders to use for the next Draw() command
 	//  - These don't technically need to be set every frame
 	//  - Once you start applying different shaders to different objects,
@@ -478,8 +564,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	// - However, this isn't always the case (but might be for this course)
 	//context->IASetInputLayout(inputLayout.Get());	//to remove
 
-	// Render the shadow map before rendering anything to the screen
-	RenderShadowMap();
 
 	//creating buffer struct
 	VertexShaderExternalData vsData;
@@ -490,20 +574,27 @@ void Game::Draw(float deltaTime, float totalTime)
 	for (int i = 0; i < entityList.size(); i++)
 	{	
 		//shadow data set here so that it doesn't have to be passed to entity
+		
 		std::shared_ptr<SimpleVertexShader> vs = entityList[i]->GetMaterial()->GetVertexShader();
 		vs->SetMatrix4x4("shadowView", shadowViewMatrix);
 		vs->SetMatrix4x4("shadowProjection", shadowProjectionMatrix);
-
+		
 		std::shared_ptr<SimplePixelShader> ps = entityList[i]->GetMaterial()->GetPixelShader();
 		ps->SetShaderResourceView("ShadowMap", shadowSRV);
 		ps->SetSamplerState("ShadowSampler", shadowSampler);
 
-		entityList[i]->Draw(context, camera, ambient);
+		//entityList[i]->GetMaterial()->PrepareMaterials();
+
+		//vs->CopyAllBufferData();
+		//ps->CopyAllBufferData();
+
 		//entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight1", &directionalLight1, sizeof(directionalLight1));
 		//entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight2", &directionalLight2, sizeof(directionalLight2));
 		entityList[i]->GetMaterial()->GetPixelShader()->SetData("directionalLight3", &directionalLight3, sizeof(directionalLight3));
 		//entityList[i]->GetMaterial()->GetPixelShader()->SetData("pointLight1", &pointLight1, sizeof(pointLight1));
 		//entityList[i]->GetMaterial()->GetPixelShader()->SetData("pointLight2", &pointLight2, sizeof(pointLight2));
+
+		entityList[i]->Draw(context, camera, ambient);
 	}
 
 	//draw sky
@@ -550,10 +641,12 @@ void Game::RenderShadowMap()
 	for (int i = 0; i < entityList.size(); i++)
 	{
 		shadowVS->SetMatrix4x4("world", entityList[i]->GetTransform()->GetWorldMatrix());
+		//entityList[i]->GetMaterial()->PrepareMaterials();
 		shadowVS->CopyAllBufferData();
 
 		//draw mesh
-		entityList[i]->Draw(context, camera, ambient);
+		entityList[i]->GetMesh()->Draw();
+		//entityList[i]->Draw(context, camera, ambient);
 	}
 
 	//after rendering shadow map, return to rendering screen

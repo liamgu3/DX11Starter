@@ -65,8 +65,8 @@ VertexToPixel main( VertexShaderInput input )
 	//output.color = input.color;
 
 	//pass the UV through
-	output.uv = input.uv;
-	//output.uv = float2(input.uv.x * 5, input.uv.y * 5);		//scales texture down by factor of 5
+	//output.uv = input.uv;
+	output.uv = float2(input.uv.x * 10, input.uv.y * 10);		//scales texture down by factor of 5
 
 	//shadow stuff
 	matrix shadowWVP = mul(shadowProjection, mul(shadowView, world));
