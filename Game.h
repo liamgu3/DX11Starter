@@ -61,6 +61,7 @@ private:
 	std::shared_ptr<Mesh> mesh1;
 	std::shared_ptr<Mesh> mesh2;
 	std::shared_ptr<Mesh> mesh3;
+	std::shared_ptr<Mesh> treeMesh;
 
 	//for holding entities
 	std::vector<Entity*> entityList;
@@ -81,6 +82,8 @@ private:
 	Material* matFloor;
 	Material* matPaint;
 	Material* matScratched;
+	Material* matTree;
+	Material* matMoss;
 
 	//Lights
 	DirectX::XMFLOAT3 ambient;
@@ -96,6 +99,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorAlbedoSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintAlbedoSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedAlbedoSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> treeAlbedoSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mossAlbedoSRV;
 
 	//textures - roughness
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeRoughnessSRV;
@@ -103,6 +108,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorRoughnessSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintRoughnessSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> treeRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mossRoughnessSRV;
 
 	//textures - normalMap
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeNormalSRV;
@@ -110,6 +117,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorNormalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintNormalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> treeNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mossNormalSRV;
 
 	//textures - metalnessMap
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeMetalnessSRV;
@@ -117,11 +126,20 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorMetalnessSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintMetalnessSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedMetalnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> treeMetalnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mossMetalnessSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV;
 	Sky* skybox;
+
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> right;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> left;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> up;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> front;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
 
 	//shadow stuff
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
