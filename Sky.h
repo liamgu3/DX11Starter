@@ -22,36 +22,36 @@ public:
 
 	~Sky();
 
-	// Constructor that loads 6 textures and makes a cube map
-	Sky(
-		const wchar_t* right,
-		const wchar_t* left,
-		const wchar_t* up,
-		const wchar_t* down,
-		const wchar_t* front,
-		const wchar_t* back,
-		Mesh* mesh,
-		std::shared_ptr<SimpleVertexShader> skyVS,
-		std::shared_ptr<SimplePixelShader> skyPS,
-		Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerOptions,
-		Microsoft::WRL::ComPtr<ID3D11Device> device,
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> context
-	);
+	//// Constructor that loads 6 textures and makes a cube map
+	//Sky(
+	//	const wchar_t* right,
+	//	const wchar_t* left,
+	//	const wchar_t* up,
+	//	const wchar_t* down,
+	//	const wchar_t* front,
+	//	const wchar_t* back,
+	//	Mesh* mesh,
+	//	std::shared_ptr<SimpleVertexShader> skyVS,
+	//	std::shared_ptr<SimplePixelShader> skyPS,
+	//	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerOptions,
+	//	Microsoft::WRL::ComPtr<ID3D11Device> device,
+	//	Microsoft::WRL::ComPtr<ID3D11DeviceContext> context
+	//);
 
 	void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, Camera* camera);
 
 private:
 
-	void InitRenderStates();
-
-	// Helper for creating a cubemap from 6 individual textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
-		const wchar_t* right,
-		const wchar_t* left,
-		const wchar_t* up,
-		const wchar_t* down,
-		const wchar_t* front,
-		const wchar_t* back);
+	//void InitRenderStates();
+	//
+	//// Helper for creating a cubemap from 6 individual textures
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
+	//	const wchar_t* right,
+	//	const wchar_t* left,
+	//	const wchar_t* up,
+	//	const wchar_t* down,
+	//	const wchar_t* front,
+	//	const wchar_t* back);
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV;

@@ -93,7 +93,7 @@ void Game::Init()
 	size = (size + 15) / 16 * 16;
 
 	//creating camera
-	camera = new Camera(0, 0, -5, (float)width / height, 4.0f, 2.0f, XM_PIDIV2);
+	camera = new Camera(0, -1.75, -5, (float)width / height, 4.0f, 2.0f, XM_PIDIV2);
 
 	//initializing lights
 	directionalLight1 = {};
@@ -382,10 +382,10 @@ void Game::CreateBasicGeometry()
 	entityList.push_back(new Entity(mesh1, matBronze));
 	entityList.push_back(new Entity(mesh1, matBronze));
 
-	entityList[9]->GetTransform()->MoveAbsolute(-5.0f, -2.25f, 0.0f);
-	entityList[10]->GetTransform()->MoveAbsolute(4.0f, -2.25f, 2.0f);
-	entityList[11]->GetTransform()->MoveAbsolute(3.0f, -2.25f, -12.0f);
-	entityList[12]->GetTransform()->MoveAbsolute(-3.0f, -2.25f, -7.0f);
+	entityList[9]->GetTransform()->MoveAbsolute(-5.0f, -2.5f, 0.0f);
+	entityList[10]->GetTransform()->MoveAbsolute(4.0f, -2.5f, 2.0f);
+	entityList[11]->GetTransform()->MoveAbsolute(3.0f, -2.5f, -12.0f);
+	entityList[12]->GetTransform()->MoveAbsolute(-3.0f, -2.5f, -7.0f);
 
 	ambient = XMFLOAT3(0.05f, 0.05f, 0.15f);
 
@@ -469,24 +469,9 @@ void Game::CreateBasicGeometry()
 	XMStoreFloat4x4(&shadowProjectionMatrix, shadowProj);
 
 	//creating sky
-	//CreateDDSTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/Skies/SunnyCubeMap.dds").c_str(), 0, skySRV.GetAddressOf());
-	//skybox = new Sky(mesh0, samplerState, device, skySRV, skyPixelShader, skyVertexShader);
+	CreateDDSTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(L"../../Assets/Textures/Skies/SunnyCubeMap.dds").c_str(), 0, skySRV.GetAddressOf());
+	skybox = new Sky(mesh0, samplerState, device, skySRV, skyPixelShader, skyVertexShader);
 
-
-	// Create the sky
-	skybox = new Sky(
-		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/right.png").c_str(),
-		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/left.png").c_str(),
-		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/up.png").c_str(),
-		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/down.png").c_str(),
-		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/front.png").c_str(),
-		GetFullPathTo_Wide(L"../../../Assets/Skies/Clouds Pink/back.png").c_str(),
-		mesh0.get(),
-		skyVertexShader,
-		skyPixelShader,
-		samplerState,
-		device,
-		context);
 
 }
 
